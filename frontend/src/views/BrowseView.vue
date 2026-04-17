@@ -11,8 +11,7 @@
                  border transition-colors duration-100"
           :class="$route.params.letter === item.letter
             ? 'bg-rw-green text-white border-rw-green'
-            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300
-               border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
+            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'"
         >
           {{ item.letter }}
         </router-link>

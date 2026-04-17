@@ -13,9 +13,7 @@
              border transition-colors duration-100"
       :class="active === item.letter
         ? 'bg-rw-green text-white border-rw-green'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300
-           border-slate-200 dark:border-slate-700
-           hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
+        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
       :title="`${item.letter} (${item.count})`"
       @click="$emit('navigate', item.letter)"
     >
@@ -37,9 +35,7 @@
              border transition-all duration-150 hover:-translate-y-px"
       :class="active === item.letter
         ? 'bg-rw-green text-white border-rw-green shadow-sm'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300
-           border-slate-200 dark:border-slate-700
-           hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-rw-green/40 hover:shadow-sm'"
+        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-rw-green/40 hover:shadow-sm'"
       :title="`${item.letter} — ${item.count} amajambo`"
     >
       {{ item.letter }}
@@ -60,9 +56,7 @@
              border transition-colors duration-100"
       :class="active === item.letter
         ? 'bg-rw-green text-white border-rw-green'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300
-           border-slate-200 dark:border-slate-700
-           hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
+        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
       :title="`${item.letter} (${item.count})`"
     >
       {{ item.letter }}
