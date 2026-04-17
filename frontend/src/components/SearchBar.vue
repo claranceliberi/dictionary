@@ -15,7 +15,7 @@
         size === 'lg' ? 'py-4 text-lg rounded-2xl' : 'py-2.5 text-sm',
       ]"
       autocomplete="off"
-      @keydown.enter="submit"
+      @keydown.enter.prevent="onEnter"
       @keydown.down.prevent="moveDropdown(1)"
       @keydown.up.prevent="moveDropdown(-1)"
       @keydown.esc="closeDropdown"
@@ -176,6 +176,7 @@ export default {
       recentSearches: [],
       timer: null,
       autoTimer: null,
+      autoController: null,
     }
   },
   mounted() {
@@ -188,6 +189,7 @@ export default {
       this.$emit('update:modelValue', v)
       this.dropdownIdx = -1
       clearTimeout(this.autoTimer)
+      this.autoController?.abort()
       if (!v.trim()) {
         this.dropdownItems = []
         this.loadingAuto = false
@@ -195,8 +197,12 @@ export default {
       }
       this.loadingAuto = true
       this.autoTimer = setTimeout(async () => {
+        this.autoController = new AbortController()
         try {
-          const res = await axios.get('/api/search', { params: { q: v, per_page: 6 } })
+          const res = await axios.get('/api/search', {
+            params: { q: v, per_page: 6 },
+            signal: this.autoController.signal,
+          })
           this.dropdownItems = res.data.results || []
         } catch {
           this.dropdownItems = []
@@ -207,13 +213,27 @@ export default {
     },
   },
   methods: {
+    onEnter() {
+      if (this.dropdownIdx >= 0) {
+        const list = this.localQuery.trim() ? this.dropdownItems : this.recentSearches
+        const item = list[this.dropdownIdx]
+        if (item) {
+          if (typeof item === 'string') { this.pickRecent(item); return }
+          this.onAutocompleteClick(item)
+          this.$router.push(`/entry/${item.id}`)
+          return
+        }
+      }
+      this.submit()
+    },
     submit() {
       const q = this.localQuery.trim()
       if (!q) return
       this.saveRecent(q)
       this.closeDropdown()
-      clearTimeout(this.timer)
-      this.$emit('search', this.localQuery)
+      clearTimeout(this.autoTimer)
+      this.loadingAuto = false
+      this.$emit('search', q)
     },
     clear() {
       this.localQuery = ''

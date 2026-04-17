@@ -292,7 +292,7 @@ export default {
         this.loading = false
       }
     },
-    goToPage(p) { this.page = p; this.fetch(); window.scrollTo(0, 0) },
+    goToPage(p) { this.page = p; this.selectedEntry = null; this.selectedId = null; this.fetch(); window.scrollTo(0, 0) },
     selectEntry(entry) {
       if (this.selectedId === entry.id) {
         this.selectedId = null

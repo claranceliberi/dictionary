@@ -117,7 +117,6 @@ const CAT_ICONS = {
   itangazabumenyi: '📊',
   imiraba: '📶',
   ibikoresho: '🛠️',
-  itumanaho: '📡',
 }
 
 const CAT_SHORT = {
@@ -134,9 +133,7 @@ const CAT_SHORT = {
   "Ikoranabuhanga ry'amajwi": "Ry'amajwi",
   "Ikoranabuhanga ry'itumanaho": "Ry'itumanaho",
   "Ikoranabuhanga ry'imiraba": "Ry'imiraba",
-  'Ikoranabuhanga ngaragazabimenyetso': 'Ngaragazabimenyetso',
   'Ibikoresho by\'itangazamakuru': 'Itangazamakuru',
-  'Itumanaho koranabuhanga': 'Itumanaho',
 }
 
 export default {

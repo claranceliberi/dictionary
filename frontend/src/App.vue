@@ -80,14 +80,23 @@
     ></div>
     <!-- Panel -->
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu y'inyuguti"
       class="fixed left-0 top-0 bottom-0 w-72 z-50 md:hidden
              bg-white dark:bg-slate-900 shadow-2xl flex flex-col
              transition-transform duration-250 ease-out"
       :class="drawerOpen ? 'translate-x-0' : '-translate-x-full'"
+      :inert="!drawerOpen || undefined"
     >
       <div class="bg-rw-green text-white px-5 py-4 flex items-center justify-between flex-shrink-0">
         <span class="font-serif font-bold">Inkoranyamuga</span>
-        <button @click="drawerOpen = false" class="text-white/70 hover:text-white text-2xl leading-none w-8 h-8 flex items-center justify-center">
+        <button
+          ref="drawerClose"
+          @click="drawerOpen = false"
+          class="text-white/70 hover:text-white text-2xl leading-none w-8 h-8 flex items-center justify-center"
+          aria-label="Funga menu"
+        >
           ×
         </button>
       </div>
@@ -115,7 +124,7 @@
 
     <!-- ── Main content ─────────────────────────────── -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
-      <router-view :letters="letters" :stats="stats" :dark-mode="darkMode" />
+      <router-view :letters="letters" :stats="stats" />
     </main>
 
     <!-- ── Footer ───────────────────────────────────── -->
@@ -151,19 +160,22 @@ export default {
     }
   },
   async created() {
-    // Restore dark mode preference
     const saved = localStorage.getItem('rw-dark-mode')
     this.darkMode = saved !== null
       ? saved === 'true'
       : window.matchMedia('(prefers-color-scheme: dark)').matches
     document.documentElement.classList.toggle('dark', this.darkMode)
 
-    const [lettersRes, statsRes] = await Promise.all([
-      axios.get('/api/letters'),
-      axios.get('/api/stats'),
-    ])
-    this.letters = lettersRes.data
-    this.stats = statsRes.data
+    try {
+      const [lettersRes, statsRes] = await Promise.all([
+        axios.get('/api/letters'),
+        axios.get('/api/stats'),
+      ])
+      this.letters = lettersRes.data
+      this.stats = statsRes.data
+    } catch (err) {
+      console.error('Failed to load app data:', err)
+    }
   },
   mounted() {
     window.addEventListener('keydown', this.onGlobalKey)
@@ -195,6 +207,11 @@ export default {
     $route(to) {
       this.query = to.query.q || ''
       this.drawerOpen = false
+    },
+    drawerOpen(open) {
+      if (open) {
+        this.$nextTick(() => this.$refs.drawerClose?.focus())
+      }
     },
   },
 }

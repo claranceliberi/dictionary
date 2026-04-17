@@ -8,6 +8,9 @@
 
     <!-- Panel -->
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Shakisha"
       class="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl
              overflow-hidden animate-scaleIn"
     >
@@ -147,18 +150,26 @@ export default {
     return { query: '', results: [], loading: false, activeIdx: -1, timer: null }
   },
   mounted() {
+    this._trigger = document.activeElement
+    document.body.style.overflow = 'hidden'
     this.$nextTick(() => this.$refs.input?.focus())
+  },
+  beforeUnmount() {
+    document.body.style.overflow = ''
+    this._trigger?.focus()
   },
   watch: {
     query(v) {
       this.activeIdx = -1
       clearTimeout(this.timer)
-      if (!v.trim()) { this.results = []; return }
+      if (!v.trim()) { this.results = []; this.loading = false; return }
       this.loading = true
       this.timer = setTimeout(async () => {
         try {
           const res = await axios.get('/api/search', { params: { q: v, per_page: 8 } })
           this.results = res.data.results || []
+        } catch {
+          this.results = []
         } finally {
           this.loading = false
         }

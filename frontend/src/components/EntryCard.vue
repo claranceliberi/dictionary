@@ -120,6 +120,7 @@
       <button
         @click.stop="copyLink"
         class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        :title="copied ? 'Yakopwe!' : 'Kopa url'"
       >
         {{ copied ? '✓ Yakopwe' : '⎘ Kopa' }}
       </button>
@@ -177,9 +178,11 @@ export default {
     },
     async copyLink() {
       const url = `${window.location.origin}/entry/${this.entry.id}`
-      await navigator.clipboard.writeText(url).catch(() => {})
-      this.copied = true
-      setTimeout(() => { this.copied = false }, 2000)
+      try {
+        await navigator.clipboard?.writeText(url)
+        this.copied = true
+        setTimeout(() => { this.copied = false }, 2000)
+      } catch { /* silent */ }
     },
   },
 }
