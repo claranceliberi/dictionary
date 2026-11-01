@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="rw" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inkoranyamuga — igerageza</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,800;6..96,900&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #1D6CB5; --blue-ink: #155A99; --sky: #18A0DB; --green: #2F9A46; --yellow: #F5D000;
+  --bg: #FFFFFF; --row: #EEF6FC; --line: #CFE1F1; --ink: #1B1B1B; --ink-2: #4B4F55; --muted: #6E747C;
+  --cover: #1D6CB5; --cover-ink: #FFFFFF; --img-bg: #FFFFFF; --hover: #FFF3B0;
+  --head: "Bodoni Moda", "Bodoni MT", Didot, serif;
+  --ui: "Montserrat", system-ui, sans-serif;
+  --text: "Palatino Linotype", "Book Antiqua", Palatino, "Noto Serif", Georgia, serif;
+}
+[data-theme="dark"] {
+  --blue: #4FA3E3; --blue-ink: #7FBDEB; --sky: #4CBDEB; --green: #5BC274; --yellow: #F5D000;
+  --bg: #0E1B2B; --row: #13263B; --line: #22405F; --ink: #E9EEF4; --ink-2: #C3CCD6; --muted: #8C99A8;
+  --cover: #12385E; --cover-ink: #FFFFFF; --img-bg: #F4F7FA; --hover: #3A3618;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #7d8590; }
+
+/* mockup controls — not part of the design */
+.controls { position: sticky; top: 0; z-index: 10; display: flex; gap: 16px; flex-wrap: wrap; padding: 8px 12px; background: #222; color: #ddd; font: 12px system-ui; }
+.controls button { font: inherit; background: #333; color: #ddd; border: 1px solid #555; padding: 3px 8px; cursor: pointer; }
+.controls button.on { background: #ddd; color: #111; }
+.stage { padding: 16px; display: flex; justify-content: center; }
+.frame { position: relative; width: 100%; max-width: 1280px; container-type: inline-size; background: var(--bg); color: var(--ink); font-family: var(--text); min-height: 85vh; overflow: hidden; }
+.frame.phone { max-width: 390px; }
+.screen { display: none; } .screen.on { display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* zigzag ribbon (umugongo w'amabara y'ibendera, nk'uko uri mu gitabo) */
+.ribbon-v { position: absolute; left: 24px; top: 0; bottom: 0; width: 34px; pointer-events: none; }
+.ribbon-h { display: none; width: 100%; height: 22px; }
+.z-blue { stroke: var(--sky); } .z-yellow { stroke: var(--yellow); } .z-green { stroke: var(--green); }
+.z { fill: none; stroke-width: 3.4; stroke-linejoin: miter; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 40px 0 88px; }
+
+/* header */
+header { border-bottom: 1px solid var(--line); background: var(--bg); position: relative; z-index: 1; }
+header .bar { display: flex; align-items: center; gap: 28px; height: 68px; }
+.mark { font: 800 14px/1.15 var(--ui); letter-spacing: 0.02em; color: var(--blue); text-transform: uppercase; white-space: nowrap; }
+.mark span { display: block; }
+.search { flex: 1; max-width: 560px; display: flex; }
+.search input { flex: 1; min-width: 0; font: 500 15px var(--ui); color: var(--ink); background: var(--bg); border: 2px solid var(--blue); border-right: 0; border-radius: 6px 0 0 6px; padding: 9px 14px; outline: none; }
+.search input::placeholder { color: var(--muted); font-weight: 500; }
+.search input:focus { box-shadow: inset 0 0 0 1px var(--blue); }
+.search button { font: 700 14px var(--ui); color: #fff; background: var(--blue); border: 0; border-radius: 0 6px 6px 0; padding: 0 18px; cursor: pointer; }
+[data-theme="dark"] .search button { color: #0E1B2B; }
+.hlink { margin-left: auto; font: 600 13px var(--ui); color: var(--ink-2); padding: 8px 4px; }
+.hlink:hover { color: var(--blue); }
+.theme { display: flex; align-items: center; gap: 8px; font: 600 13px var(--ui); color: var(--ink-2); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+.phone-search { display: none; }
+
+/* home: cover */
+.cover { background: var(--cover); color: var(--cover-ink); position: relative; }
+.cover .wrap { padding-top: 56px; padding-bottom: 44px; }
+.cover .ribbon-v { left: 22px; }
+.cover h1 { font: 800 50px/1.08 var(--ui); text-transform: uppercase; letter-spacing: 0.005em; margin: 0 0 18px; }
+.cover p { font: 500 16px var(--ui); margin: 0 0 32px; opacity: .88; }
+.cover p b { font-weight: 700; }
+.cover .search { max-width: 640px; }
+.cover .search input { border-color: #fff; font-size: 17px; padding: 14px 16px; }
+.cover .search button { background: var(--yellow); color: #14324F; font-size: 15px; padding: 0 24px; }
+.cover .try { margin: 14px 0 0; font: 500 14px var(--ui); opacity: .9; }
+.cover .try a { border-bottom: 1px solid rgba(255,255,255,.45); padding-bottom: 1px; }
+.cover .try a:hover { border-bottom-color: var(--yellow); color: var(--yellow); }
+
+.home-body { display: grid; grid-template-columns: 240px 1fr; gap: 56px; padding-top: 48px; padding-bottom: 24px; align-items: start; }
+.cap { font: 500 13px var(--ui); color: var(--muted); margin: -8px 0 12px; }
+.col-main { display: grid; gap: 48px; }
+.howto { padding-top: 4px; }
+.howto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.howto .intro { margin: 0 0 14px; font-size: 16px; line-height: 1.6; color: var(--ink-2); }
+.legend { display: grid; grid-template-columns: 40px 1fr; gap: 8px 8px; margin: 0; font-size: 15.5px; line-height: 1.5; }
+.legend dt { font: 700 13.5px/1.75 var(--ui); color: var(--green); }
+.legend dd { margin: 0; }
+.more { display: inline-block; margin-top: 20px; font: 700 14px var(--ui); color: var(--blue); border-bottom: 2px solid var(--yellow); padding-bottom: 2px; }
+.more:hover { color: var(--blue-ink); border-bottom-color: var(--blue); }
+/* the example is drawn as a page of the book: running head, entry, page roundel */
+.minipage { margin: 0; background: var(--bg); border: 1px solid var(--line); padding: 0 20px; }
+.minipage .runhead { margin: 0 -20px 14px; font-size: 10.5px; padding: 8px 0; }
+.mp-lb { font: 700 11px var(--ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; }
+.minipage .e { padding: 0; border: 0; }
+.minipage .e .hw { font-size: 21px; }
+.minipage .e .def { font-size: 16.5px; }
+.minipage .e .meta { font-size: 14.5px; }
+.minipage .e figure { display: none; }
+.mp-foot { position: relative; height: 44px; margin: 6px -20px 0; display: flex; align-items: center; justify-content: center; }
+.mp-foot::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: linear-gradient(90deg, transparent, var(--green) 25%, var(--sky) 75%, transparent); opacity: .45; }
+.mp-foot span { position: relative; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--green)); color: #fff; font: 800 12px var(--ui); display: flex; align-items: center; justify-content: center; }
+h2.ttl { font: 800 15px var(--ui); color: var(--sky); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 14px; }
+
+/* Ishakiro — nk'urutonde ruri ku ipaji ya mbere y'igitabo */
+.ishakiro { border: 1px solid var(--blue); border-radius: 4px; overflow: hidden; }
+.ishakiro a { display: grid; grid-template-columns: 40px 1fr; border-bottom: 1px solid var(--blue); }
+.ishakiro a:last-child { border-bottom: 0; }
+.ishakiro a b { background: var(--blue); color: #fff; font: 800 13px var(--ui); display: flex; align-items: center; justify-content: center; }
+[data-theme="dark"] .ishakiro a b { color: #0E1B2B; }
+.ishakiro a span { display: flex; justify-content: flex-end; align-items: center; padding: 5px 12px; font: 500 14px var(--ui); color: var(--ink-2); }
+.ishakiro a:nth-child(odd) span { background: var(--row); }
+.ishakiro a span::after { content: "→"; margin-left: 10px; color: var(--blue-ink); visibility: hidden; }
+.ishakiro a:hover b, .ishakiro a:focus-visible b { background: var(--yellow); color: #14324F; }
+.ishakiro a:hover span, .ishakiro a:focus-visible span { background: var(--hover); color: var(--blue-ink); font-weight: 700; }
+.ishakiro a:hover span::after, .ishakiro a:focus-visible span::after { visibility: visible; }
+.ishakiro a:focus-visible { outline: none; }
+
+.ibitsibo { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 40px; }
+.ibitsibo li { break-inside: avoid; }
+.ibitsibo li a { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; font: 500 15px var(--ui); color: var(--ink); }
+.ibitsibo li a .dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); }
+.ibitsibo li a .n { color: var(--muted); font-size: 14px; }
+.ibitsibo li a:hover { color: var(--blue); }
+
+/* running head, as on every page of the book */
+.runhead { text-align: center; font: italic 600 12px var(--ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--green); padding: 10px 0; background: linear-gradient(90deg, transparent, var(--row) 30%, var(--row) 70%, transparent); margin: 0 0 8px; }
+
+/* letter page */
+.page { display: grid; grid-template-columns: 48px 1fr; gap: 48px; padding-top: 28px; }
+.tabs { position: sticky; top: 16px; align-self: start; display: flex; flex-direction: column; background: var(--blue); border-radius: 4px; overflow: hidden; }
+.tabs a { font: 800 13px var(--ui); color: #fff; text-align: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.18); }
+[data-theme="dark"] .tabs a { color: #0E1B2B; border-bottom-color: rgba(0,0,0,.15); }
+.tabs a:last-child { border-bottom: 0; }
+.tabs a:hover { background: rgba(255,255,255,.14); }
+.tabs a.on { background: var(--yellow); color: #14324F; }
+.strip { display: none; }
+.roundel { width: 54px; height: 54px; border-radius: 50%; background: var(--blue); color: #fff; font: 900 28px var(--head); display: flex; align-items: center; justify-content: center; margin: 18px auto 6px; }
+[data-theme="dark"] .roundel { color: #0E1B2B; }
+.count { text-align: center; font: 600 13px var(--ui); color: var(--muted); margin-bottom: 28px; }
+.list { max-width: 720px; }
+.e { padding: 26px 0; border-bottom: 1px solid var(--line); display: flow-root; }
+.e:first-child { padding-top: 0; }
+.e:last-child { border-bottom: 0; }
+.e .hw { font: 900 23px/1.25 var(--head); letter-spacing: 0.01em; color: var(--ink); }
+.e .hw:hover { color: var(--blue); }
+.e .pr { color: var(--muted); font-size: 16px; margin-left: 6px; }
+.e .def { margin: 8px 0 14px; font-size: 19px; line-height: 1.6; color: var(--ink); }
+.e .meta { display: grid; grid-template-columns: 36px 1fr; gap: 3px 10px; margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+.e .meta dt { font: 700 12.5px/1.95 var(--ui); color: var(--green); }
+.e .meta dd { margin: 0; }
+.e .meta abbr { position: relative; text-decoration: underline dotted 1px; text-underline-offset: 3px; cursor: help; outline: none; }
+.e .meta abbr::after { content: attr(data-full); position: absolute; left: -6px; bottom: calc(100% + 6px); background: var(--blue); color: #fff; font: 600 13px/1 var(--ui); padding: 7px 10px; border-radius: 4px; white-space: nowrap; z-index: 5; pointer-events: none; opacity: 0; transform: translateY(3px); transition: opacity .12s, transform .12s; }
+[data-theme="dark"] .e .meta abbr::after { color: #0E1B2B; }
+.e .meta abbr:hover::after, .e .meta abbr:focus-visible::after { opacity: 1; transform: none; }
+.e .meta abbr:hover, .e .meta abbr:focus-visible { color: var(--blue); }
+.e .meta dd b { color: var(--ink); font-weight: 600; }
+.lb { font: 700 13.5px var(--ui); color: var(--green); }
+.e figure { float: right; margin: 4px 0 8px 20px; }
+.e figure img { width: 96px; height: 96px; object-fit: contain; background: var(--img-bg); border-radius: 4px; display: block; }
+.pager { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 20px 0 8px; font: 700 15px var(--ui); }
+.pager a, .pager span { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--blue); }
+.pager .cur { background: linear-gradient(135deg, var(--blue), var(--green)); color: #fff; }
+.pager a:hover { background: var(--row); }
+
+/* entry page */
+.entry { max-width: 760px; padding-top: 28px; }
+.crumb { font: 600 13px var(--ui); color: var(--muted); }
+.crumb a { color: var(--blue); }
+.entry-top { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: start; margin-top: 28px; }
+.entry h1 { font: 900 52px/1.08 var(--head); margin: 0 0 8px; letter-spacing: 0.005em; }
+.entry .pr { font-size: 21px; color: var(--ink-2); }
+.entry-top img { width: 200px; height: 200px; object-fit: contain; background: var(--img-bg); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.lead { margin: 28px 0 0; }
+.lead p { font-size: 23px; line-height: 1.6; margin: 6px 0 0; max-width: 34em; }
+.fields { margin: 32px 0 0; border-top: 3px solid var(--blue); }
+.f { display: grid; grid-template-columns: 170px 1fr; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 17px; line-height: 1.55; color: var(--ink-2); }
+.f b { color: var(--ink); }
+.f .lb { font-size: 14px; padding-top: 4px; }
+.f.sh { font-size: 21px; }
+.f small { color: var(--ink-2); font-size: 17px; }
+.acts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.acts a, .acts button { font: 600 14px var(--ui); color: var(--blue); background: var(--bg); border: 1.5px solid var(--blue); border-radius: 6px; padding: 9px 14px; cursor: pointer; }
+.acts .primary { background: var(--blue); color: #fff; }
+[data-theme="dark"] .acts .primary { color: #0E1B2B; }
+
+/* footer, with the book's soft page rule */
+footer { margin-top: 64px; padding: 14px 0 20px; border-top: 1px solid var(--line); }
+footer p { font: 500 11.5px/1.7 var(--ui); color: var(--muted); margin: 0; }
+footer a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 2px; }
+footer a:hover { color: var(--blue); text-decoration-color: currentColor; }
+footer .sep { margin: 0 6px; opacity: .6; }
+
+/* guide page */
+.guide { max-width: 760px; padding-top: 28px; }
+.guide h1 { font: 800 34px/1.15 var(--ui); color: var(--sky); text-transform: uppercase; margin: 24px 0 12px; }
+.lede { font-size: 20px; line-height: 1.6; margin: 0 0 32px; max-width: 36em; }
+.anno { margin: 0 0 40px; border: 1px solid var(--line); background: var(--bg); }
+.anno .runhead { margin: 0; }
+.anno-body { position: relative; padding: 18px 24px 22px; }
+.anno-img { float: right; width: 96px; height: 96px; object-fit: contain; background: var(--img-bg); margin: 0 0 8px 20px; }
+.anno .hw { font: 900 25px/1.25 var(--head); }
+.anno .pr { color: var(--muted); font-size: 17px; }
+.anno .def { font-size: 19px; line-height: 1.6; margin: 8px 0 14px; }
+.anno .meta { display: grid; grid-template-columns: 58px 1fr; gap: 3px 10px; margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+.anno .meta dt { font: 700 12.5px/1.95 var(--ui); color: var(--green); white-space: nowrap; }
+.anno .meta dd { margin: 0; } .anno .meta dd b { color: var(--ink); font-weight: 600; }
+.pin { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--yellow); color: #14324F; font: normal 800 11px var(--ui); vertical-align: 3px; margin: 0 4px 0 6px; }
+.anno .def .pin { margin: 0 8px 0 0; }
+.anno .meta dt .pin { margin-left: 4px; vertical-align: 1px; }
+.p-img { position: absolute; top: 14px; right: 18px; margin: 0; }
+.parts { list-style: none; counter-reset: part; margin: 0; padding: 0; }
+.parts li { counter-increment: part; position: relative; padding: 0 0 26px 48px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
+.parts li:last-child { border-bottom: 0; margin-bottom: 0; }
+.parts li::before { content: counter(part); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--yellow); color: #14324F; font: 800 14px var(--ui); display: flex; align-items: center; justify-content: center; }
+.parts h2 { font: 700 17px/30px var(--ui); color: var(--green); margin: 0 0 6px; }
+.parts h2 abbr { font: 700 12px var(--ui); color: var(--blue); border: 1.5px solid var(--blue); border-radius: 4px; padding: 1px 5px; margin-left: 6px; text-decoration: none; vertical-align: 2px; }
+.parts p { font-size: 18px; line-height: 1.6; margin: 0; max-width: 38em; }
+.parts .ex { margin-top: 10px; font-size: 16.5px; color: var(--ink-2); }
+.parts .ex span { font: 700 11px var(--ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-right: 10px; }
+.parts .ex a { color: var(--blue); }
+.hwx { font: 900 17px var(--head); color: var(--ink); }
+.mut { color: var(--muted); }
+.abbr-table { border-collapse: collapse; border: 1px solid var(--blue); min-width: 320px; }
+.abbr-table th { background: var(--blue); color: #fff; font: 800 13px var(--ui); padding: 7px 14px; text-align: center; width: 56px; border-bottom: 1px solid rgba(255,255,255,.2); }
+[data-theme="dark"] .abbr-table th { color: #0E1B2B; }
+.abbr-table td { font: 500 15px var(--ui); padding: 7px 16px; border-bottom: 1px solid var(--blue); }
+.abbr-table tr:nth-child(odd) td { background: var(--row); }
+.src { margin-top: 20px; font: 500 14px var(--ui); color: var(--muted); }
+
+/* phone */
+@container (max-width: 760px) {
+  .ribbon-v { display: none; }
+  .ribbon-h { display: block; }
+  .wrap { padding: 0 16px; }
+  header .bar { height: 58px; gap: 12px; }
+  header .bar .search { display: none; }
+  .theme .tl { display: none; }
+  .hlink { display: none; }
+  .theme { margin-left: auto; }
+  .phone-search { display: block; padding: 0 0 12px; }
+  .phone-search .search { max-width: none; }
+  .cover .wrap { padding-top: 28px; padding-bottom: 32px; }
+  .cover h1 { font-size: 30px; }
+  .cover p { font-size: 14px; margin-bottom: 22px; }
+  .cover .search input { font-size: 16px; padding: 12px; }
+  .cover .search button { padding: 0 14px; }
+  .home-body { grid-template-columns: 1fr; gap: 36px; padding-top: 28px; }
+  .col-main { display: contents; }
+  .col-ish { order: 1; } .col-cats { order: 2; } .howto { order: 3; }
+  .howto-grid { grid-template-columns: 1fr; gap: 20px; }
+  .ibitsibo { columns: 1; }
+  .cover .try { font-size: 13px; }
+  .ishakiro a { grid-template-columns: 44px 1fr; }
+  .ishakiro a span { padding: 7px 14px; font-size: 15px; }
+  .page { display: block; padding-top: 0; }
+  .tabs { display: none; }
+  .strip { display: flex; overflow-x: auto; background: var(--blue); margin: 0 -16px; scrollbar-width: none; }
+  .strip a { font: 800 14px var(--ui); color: #fff; padding: 10px 12px; flex: none; }
+  [data-theme="dark"] .strip a { color: #0E1B2B; }
+  .strip a.on { background: var(--yellow); color: #14324F; }
+  .e .hw { font-size: 21px; }
+  .e .def { font-size: 17.5px; }
+  .e .meta { font-size: 15px; }
+  .e figure img { width: 72px; height: 72px; }
+  .entry { padding-top: 16px; }
+  .guide { padding-top: 16px; }
+  .guide h1 { font-size: 24px; margin-top: 16px; }
+  .lede { font-size: 17.5px; margin-bottom: 24px; }
+  .anno { margin: 0 -16px 32px; border-left: 0; border-right: 0; }
+  .anno-body { padding: 16px; }
+  .anno-img { width: 64px; height: 64px; }
+  .p-img { right: 10px; top: 8px; }
+  .anno .hw { font-size: 21px; }
+  .anno .def { font-size: 17px; }
+  .parts li { padding-left: 42px; }
+  .parts p { font-size: 16.5px; }
+  .abbr-table { min-width: 0; width: 100%; }
+  .entry-top { grid-template-columns: 1fr 88px; gap: 14px; margin-top: 18px; }
+  .entry h1 { font-size: 36px; }
+  .entry .pr { font-size: 18px; }
+  .entry-top img { width: 88px; height: 88px; padding: 6px; }
+  .f { grid-template-columns: 1fr; gap: 2px; font-size: 17.5px; }
+  .lead p { font-size: 19.5px; }
+  .f .lb { padding-top: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <span>Ipaji: <button data-s="home" class="on">Ahabanza</button> <button data-s="letter">Inyuguti M</button> <button data-s="entry">Ijambo</button> <button data-s="guide">Uko wasoma</button></span>
+  <span>Ibara: <button data-t="light" class="on">Urumuri</button> <button data-t="dark">Umwijima</button></span>
+  <span>Ingano: <button data-w="desktop" class="on">Mudasobwa</button> <button data-w="phone">Telefone</button></span>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="zv" width="34" height="18" patternUnits="userSpaceOnUse">
+      <polyline class="z z-blue" points="3,0 12,9 3,18"/>
+      <polyline class="z z-yellow" points="12,0 21,9 12,18"/>
+      <polyline class="z z-green" points="21,0 30,9 21,18"/>
+    </pattern>
+    <pattern id="zh" width="14" height="22" patternUnits="userSpaceOnUse">
+      <polyline class="z z-blue" points="0,2 7,9 14,2"/>
+      <polyline class="z z-yellow" points="0,9 7,16 14,9"/>
+      <polyline class="z z-green" points="0,16 7,23 14,16"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="stage">
+<div class="frame" id="frame">
+
+  <svg class="ribbon-h" aria-hidden="true"><rect width="100%" height="22" fill="url(#zh)"/></svg>
+
+  <header>
+    <div class="wrap">
+      <div class="bar">
+        <a class="mark" href="#" data-go="home"><span>Inkoranyamuga</span><span>y'Ikoranabuhanga</span></a>
+        <form class="search hide-on-home" onsubmit="return false"><input placeholder="Shakisha ijambo…"><button>Shakisha</button></form>
+        <a class="hlink" href="#" data-go="guide">Uko wasoma</a>
+        <button class="theme" data-toggle-theme aria-label="Hindura ibara">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <span class="tl">Umwijima</span>
+        </button>
+      </div>
+      <div class="phone-search hide-on-home"><form class="search" onsubmit="return false"><input placeholder="Shakisha ijambo…"><button>Shakisha</button></form></div>
+    </div>
+  </header>
+
+  <!-- AHABANZA -->
+  <main class="screen on" id="s-home">
+    <section class="cover">
+      <svg class="ribbon-v" aria-hidden="true" style="height:100%"><rect width="34" height="100%" fill="url(#zv)"/></svg>
+      <div class="wrap">
+        <h1>Inkoranyamuga<br>y'Ikoranabuhanga</h1>
+        <p>Amagambo <b>1601</b> &nbsp;·&nbsp; Ikinyarwanda, Icyongereza n'Igifaransa</p>
+        <form class="search" onsubmit="return false"><input placeholder="Shakisha ijambo…" autofocus><button>Shakisha</button></form>
+        <p class="try">Gerageza: <a href="#">mudasobwa</a> · <a href="#">imeri</a> · <a href="#">murandasi</a> · <a href="#">mikoro</a></p>
+      </div>
+    </section>
+    <div class="wrap home-body">
+      <section class="col-ish">
+        <h2 class="ttl">Ishakiro</h2>
+        <p class="cap">Inyuguti n'umubare w'amagambo</p>
+        <nav class="ishakiro" id="ishakiro"></nav>
+      </section>
+      <div class="col-main">
+        <section class="howto">
+          <h2 class="ttl">Urutonde rw'ibimenyetso mpine</h2>
+          <div class="howto-grid">
+            <div>
+              <p class="intro">Buri jambo rikurikirwa n'imisomere yaryo mu dukubo, hanyuma inshoza yaryo. Munsi yayo haza ibindi biriranga, buri kimwe kibanzirizwa n'impine yacyo:</p>
+              <dl class="legend">
+                <dt>HI</dt><dd><b>Impuzanyito</b> — iryuga rivuga kimwe n'ijambo ry'indatwa.</dd>
+                <dt>Eng</dt><dd><b>Icyongereza</b> — iyo amagambo ari menshi, iry'indatwa ryandikwa mu nyuguti zitsindagiye, ayandi akarikurikira.</dd>
+                <dt>Fr</dt><dd><b>Igifaransa</b> — byandikwa kimwe n'Icyongereza.</dd>
+                <dt>NK</dt><dd><b>Igitsibo</b> — ingeri y'ikoranabuhanga ijambo ribarizwamo.</dd>
+              </dl>
+              <a class="more" href="#" data-go="guide">Soma ibisobanuro byose <span aria-hidden="true">→</span></a>
+            </div>
+            <figure class="minipage" aria-label="Urugero">
+              <div class="runhead">Inkoranyamuga y'ikoranabuhanga</div>
+              <div class="mp-lb">Urugero</div>
+              <div id="sample"></div>
+              <div class="mp-foot"><span>M</span></div>
+            </figure>
+          </div>
+        </section>
+        <section class="col-cats">
+          <h2 class="ttl">Ibitsibo</h2>
+          <ul class="ibitsibo" id="ibitsibo"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- INYUGUTI -->
+  <main class="screen" id="s-letter">
+    <svg class="ribbon-v" aria-hidden="true" style="height:100%"><rect width="34" height="100%" fill="url(#zv)"/></svg>
+    <div class="wrap">
+      <nav class="strip" id="strip"></nav>
+      <div class="page">
+        <nav class="tabs" id="tabs"></nav>
+        <div class="list">
+          <div class="runhead">Inkoranyamuga y'ikoranabuhanga</div>
+          <div class="roundel">M</div>
+          <div class="count">Amagambo 55</div>
+          <div id="entries"></div>
+          <nav class="pager" aria-label="Amapaji"><span class="cur">1</span><a href="#">2</a><a href="#" aria-label="Ipaji ikurikira">›</a></nav>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- IJAMBO -->
+  <main class="screen" id="s-entry">
+    <svg class="ribbon-v" aria-hidden="true" style="height:100%"><rect width="34" height="100%" fill="url(#zv)"/></svg>
+    <div class="wrap">
+      <article class="entry">
+        <div class="crumb"><a href="#" data-go="home">Ahabanza</a> › <a href="#" data-go="letter">M</a> › Mikoro</div>
+        <div class="entry-top">
+          <div>
+            <h1>Mikoro</h1>
+            <div class="pr">(mikoro)</div>
+          </div>
+          <img src="https://dict.clarance.me/images/img-117.jpeg" alt="Mikoro">
+        </div>
+        <div class="lead"><span class="lb">Inshoza</span><p>Indangururamajwi ifite ubushobozi buhambaye bwo gukurura amajwi, yifashishwa mu gufata amajwi yihariye mu yandi menshi ari kumvikana ahantu runaka.</p></div>
+        <div class="fields">
+          <div class="f"><span class="lb">Impuzanyito</span><span><b>Indangururamajwi</b> <small>(indâangururamâjwi)</small></span></div>
+          <div class="f"><span class="lb">Icyongereza</span><span><b>Microphone</b></span></div>
+          <div class="f"><span class="lb">Igifaransa</span><span><b>Microphone</b></span></div>
+          <div class="f"><span class="lb">Igitsibo</span><span><a href="#" style="color:var(--blue)">Ikoranabuhanga ry'amajwi</a></span></div>
+        </div>
+        <div class="acts">
+          <a href="#" data-go="letter">← Subira inyuma</a>
+          <button>Kopa aderesi</button>
+          <a href="#" class="primary">Andi magambo y'iki gitsibo →</a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- UKO WASOMA -->
+  <main class="screen" id="s-guide">
+    <svg class="ribbon-v" aria-hidden="true" style="height:100%"><rect width="34" height="100%" fill="url(#zv)"/></svg>
+    <div class="wrap">
+      <article class="guide">
+        <div class="crumb"><a href="#" data-go="home">Ahabanza</a> › Uko wasoma</div>
+        <h1>Uko wasoma inkoranyamuga</h1>
+        <p class="lede">Iyi nkoranyamuga irimo amagambo 1601 y'ikoranabuhanga mu Kinyarwanda. Buri jambo rifite inshoza yaryo, n'uko ryitwa mu Cyongereza no mu Gifaransa.</p>
+
+        <figure class="anno">
+          <div class="runhead">Inkoranyamuga y'ikoranabuhanga</div>
+          <div class="anno-body">
+            <img class="anno-img" src="https://dict.clarance.me/images/img-116.jpeg" alt=""><i class="pin p-img">7</i>
+            <div><span class="hw">Meni yo gutangira</span><i class="pin">1</i> <span class="pr">(meni yô gutâangira)</span><i class="pin">2</i></div>
+            <p class="def"><i class="pin">3</i>Igikoresho gitanga inzira igera kuri za gahunda, igenabikorwa, incapanyandiko n'ibindi.</p>
+            <dl class="meta">
+              <dt>HI <i class="pin">4</i></dt><dd><b>Ingingo y'ihagurutsa</b> (ingiingo y'ihâgurutsa)</dd>
+              <dt>Eng <i class="pin">5</i></dt><dd><b>Start menu</b></dd>
+              <dt>Fr</dt><dd><b>Menu de démarrage</b>; menu démarrer</dd>
+              <dt>NK <i class="pin">6</i></dt><dd>Ikoranabuhanga rya mudasobwa</dd>
+            </dl>
+          </div>
+        </figure>
+
+        <ol class="parts">
+          <li><h2>Ijambo ry'indatwa</h2>
+            <p>Ni ijambo ry'Ikinyarwanda risobanurwa. Ryandikwa mu nyuguti zitsindagiye, kandi amagambo yose atondetse hakurikijwe inyuguti.</p>
+            <p class="ex"><span>Urugero</span><b class="hwx">Meni yo gutangira</b></p></li>
+          <li><h2>Imisomere</h2>
+            <p>Iri mu dukubo nyuma y'ijambo. Igaragaza uko ijambo rivugwa, hakoreshejwe ibimenyetso by'amasaku nka â, ê, î na ô.</p>
+            <p class="ex"><span>Urugero</span>Mikoro yambarwa <i class="mut">(mikoro yaambârwa)</i></p></li>
+          <li><h2>Inshoza <abbr>SH</abbr></h2>
+            <p>Ni igisobanuro kigufi cy'ijambo. Kuri uru rubuga iza ako kanya munsi y'ijambo, kuko ari cyo abenshi baba bashaka.</p>
+            <p class="ex"><span>Urugero</span>Igipimo cy'ubwisubiremo bw'amajwi, bingana n'inshuro miliyoni ku isegonda. <i class="mut">— Megaheritse</i></p></li>
+          <li><h2>Impuzanyito <abbr>HI</abbr></h2>
+            <p>Ni irindi jambo ry'Ikinyarwanda rivuga kimwe n'ijambo ry'indatwa. Ntabwo amagambo yose agira impuzanyito.</p>
+            <p class="ex"><span>Urugero</span>Mikoro — <b>Indangururamajwi</b></p></li>
+          <li><h2>Icyongereza <abbr>Eng</abbr> n'Igifaransa <abbr>Fr</abbr></h2>
+            <p>Ni uko ijambo ryitwa mu Cyongereza no mu Gifaransa. Iyo hari amagambo menshi, iry'ingenzi ryandikwa mu nyuguti zitsindagiye, andi akarikurikira.</p>
+            <p class="ex"><span>Urugero</span><b>Lapel microphone</b>; lavalier microphone; clip mic</p></li>
+          <li><h2>Igitsibo <abbr>NK</abbr></h2>
+            <p>Ni ingeri y'ikoranabuhanga ijambo ribarizwamo, nka mudasobwa, murandasi cyangwa itumanaho. Kanda ku gitsibo ubone andi magambo yose akibarizwamo.</p>
+            <p class="ex"><span>Urugero</span><a href="#">Ikoranabuhanga ry'amajwi</a> <i class="mut">· amagambo 15</i></p></li>
+          <li><h2>Ishusho</h2>
+            <p>Amwe mu magambo aherekejwe n'ishusho iyerekana.</p></li>
+        </ol>
+
+        <h2 class="ttl" style="margin-top:48px">Urutonde rw'ibimenyetso mpine</h2>
+        <table class="abbr-table">
+          <tr><th>HI</th><td>Impuzanyito</td></tr>
+          <tr><th>Eng</th><td>Icyongereza</td></tr>
+          <tr><th>Fr</th><td>Igifaransa</td></tr>
+          <tr><th>NK</th><td>Ingeri y'ikoranabuhanga / igitsibo</td></tr>
+          <tr><th>SH</th><td>Inshoza / igisobanuro</td></tr>
+        </table>
+        <p class="src">Ibisobanuro birambuye biri mu gitabo <i>Inkoranyamuga y'Ikoranabuhanga</i> (2026), ipaji vi–vii.</p>
+      </article>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>Umushinga bwite wakozwe na <a href="https://clarance.me" rel="author">Clarance</a>, ntaho uhuriye n'Inteko y'Umuco cyangwa urundi rwego rwa Leta.<span class="sep">·</span>Amagambo yakuwe mu gitabo <i>Inkoranyamuga y'Ikoranabuhanga</i> (2026).<span class="sep">·</span><a href="#" data-go="guide">Uko wasoma</a></p>
+    </div>
+  </footer>
+
+</div>
+</div>
+
+<script>
+const letters = {A:76,B:11,C:1,D:1,E:2,F:3,G:25,H:1,I:960,J:2,K:50,L:2,M:55,N:12,P:16,R:1,S:27,T:5,U:333,V:13,W:2,Y:1,Z:2};
+const cats = [["Ikoranabuhanga rya mudasobwa",995],["Ikoranabuhanga rya murandasi",248],["Itumanaho koranabuhanga",78],["Ikoranabuhanga ry'imari",68],["Ubwenge buhangano",53],["Isakazamakuru",53],["Ikoranabuhanga ndangamuntu",32],["Urusobe ntangamakuru",18],["Ikoranabuhanga ry'amashusho",17],["Ikoranabuhanga ngaragazabimenyetso",16],["Ikoranabuhanga ry'amajwi",15],["Ikoranabuhanga ry'itumanaho",3],["Ikoranabuhanga ry'imiraba",3],["Ibikoresho by'itangazamakuru",1]];
+const entries = [
+  {t:"Megabayiti",p:"megabayiti",c:"Ikoranabuhanga rya mudasobwa",en:"Megabyte",fr:"Mégaoctet",d:"Igipimo cy'ingano y'amakuru abikika ku gikoresho runaka, icyo gipimo kingana na bayiti igihumbi kirengaho."},
+  {t:"Megaheritse",p:"megaheritse",c:"Ikoranabuhanga rya mudasobwa",en:"Megahertz",fr:"Mégahertz",d:"Igipimo cy'ubwisubiremo bw'amajwi, bingana n'inshuro miliyoni ku isegonda."},
+  {t:"Meni yo gutangira",p:"meni yô gutâangira",c:"Ikoranabuhanga rya mudasobwa",en:"Start menu",fr:"Menu de démarrage; menu démarrer",s:"Ingingo y'ihagurutsa",sp:"ingiingo y'ihâgurutsa",d:"Igikoresho gitanga inzira igera kuri za gahunda, igenabikorwa, incapanyandiko n'ibindi.",img:"img-116.jpeg"},
+  {t:"Menya n'ibindi",p:"menya n'ibiindi",c:"Ikoranabuhanga rya mudasobwa",en:"Learn More",fr:"Apprendre encore plus",d:"Igikorwa cyo kumva cyangwa kumenya byinshi kurushaho."},
+  {t:"Mikoro",p:"mikoro",c:"Ikoranabuhanga ry'amajwi",en:"Microphone",fr:"Microphone",s:"Indangururamajwi",sp:"indâangururamâjwi",d:"Indangururamajwi ifite ubushobozi buhambaye bwo gukurura amajwi, yifashishwa mu gufata amajwi yihariye mu yandi menshi ari kumvikana ahantu runaka.",img:"img-117.jpeg"},
+  {t:"Mikoro nyabyerekezo",p:"mikoro nyabyêerekezo",c:"Ikoranabuhanga ry'amajwi",en:"Omnidirectional microphone",fr:"Microphone omnidirectionnel",d:"Ubwoko bwa mikoro yakira amajwi ifata aturutse mu byerekezo byose."},
+  {t:"Mikoro yambarwa",p:"mikoro yaambârwa",c:"Ikoranabuhanga ry'amajwi",en:"Lapel microphone; lavalier microphone; tie-clip microphone; clip mic",fr:"Micro-cravate; micro-corps; micro-collier",d:"Ubwoko bwa mikoro nto yakira amajwi aturutse mu byerekezo byose, ikaba yakwambarwa ku gice cy'umwenda kiri hafi y'umunwa cyangwa igashyirwa ku kintu kiri hafi y'aho abantu bavugira."},
+];
+// The book prints the main translation bold and the alternatives after it plain.
+const tr = s => { const [first, ...rest] = s.split(/;\s*/); return `<b>${first}</b>${rest.length ? '; ' + rest.join('; ') : ''}`; };
+const FULL = {HI: "Impuzanyito", Eng: "Icyongereza", Fr: "Igifaransa", NK: "Igitsibo (ingeri y'ikoranabuhanga)"};
+const ab = k => `<abbr tabindex="0" data-full="${FULL[k]}" aria-label="${FULL[k]}">${k}</abbr>`;
+const L = Object.keys(letters);
+document.getElementById('ishakiro').innerHTML = L.map(l => `<a href="#" data-go="letter"><b>${l}</b><span>${letters[l]}</span></a>`).join('');
+document.getElementById('ibitsibo').innerHTML = cats.map(([n,c]) => `<li><a href="#"><span>${n}</span><span class="dots"></span><span class="n">${c}</span></a></li>`).join('');
+document.getElementById('tabs').innerHTML = L.map(l => `<a href="#" class="${l==='M'?'on':''}">${l}</a>`).join('');
+document.getElementById('strip').innerHTML = L.map(l => `<a href="#" class="${l==='M'?'on':''}">${l}</a>`).join('');
+const entryHTML = e => `
+  <div class="e">
+    ${e.img ? `<figure><img src="https://dict.clarance.me/images/${e.img}" alt=""></figure>` : ''}
+    <div><a href="#" class="hw" data-go="entry">${e.t}</a><span class="pr">(${e.p})</span></div>
+    <p class="def">${e.d}</p>
+    <dl class="meta">
+      ${e.s ? `<dt>${ab('HI')}</dt><dd><b>${e.s}</b> (${e.sp})</dd>` : ''}
+      <dt>${ab('Eng')}</dt><dd>${tr(e.en)}</dd>
+      <dt>${ab('Fr')}</dt><dd>${tr(e.fr)}</dd>
+      <dt>${ab('NK')}</dt><dd>${e.c}</dd>
+    </dl>
+  </div>`;
+document.getElementById('entries').innerHTML = entries.map(entryHTML).join('');
+document.getElementById('sample').innerHTML = entryHTML(entries[4]);
+
+const frame = document.getElementById('frame');
+function show(s) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.toggle('on', el.id === 's-' + s));
+  document.querySelectorAll('.hide-on-home').forEach(el => el.style.visibility = s === 'home' ? 'hidden' : '');
+  document.querySelectorAll('.phone-search').forEach(el => el.style.display = s === 'home' ? 'none' : '');
+  document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  window.scrollTo(0, 0);
+}
+function theme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll('[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.querySelectorAll('.theme .tl').forEach(x => x.textContent = t === 'dark' ? 'Urumuri' : 'Umwijima');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-s],[data-t],[data-w],[data-go],[data-toggle-theme]');
+  if (!b) return;
+  e.preventDefault();
+  if (b.dataset.s || b.dataset.go) show(b.dataset.s || b.dataset.go);
+  if (b.dataset.t) theme(b.dataset.t);
+  if (b.hasAttribute('data-toggle-theme')) theme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+  if (b.dataset.w) {
+    frame.classList.toggle('phone', b.dataset.w === 'phone');
+    document.querySelectorAll('[data-w]').forEach(x => x.classList.toggle('on', x === b));
+  }
+});
+show('home');
+</script>
+</body>
+</html>
