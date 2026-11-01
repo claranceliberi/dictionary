@@ -112,8 +112,9 @@ h2.ttl { font: 800 15px var(--ui); color: var(--sky); text-transform: uppercase;
 .ishakiro a:hover span::after, .ishakiro a:focus-visible span::after { visibility: visible; }
 .ishakiro a:focus-visible { outline: none; }
 
-.ibitsibo { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 40px; }
-.ibitsibo li { break-inside: avoid; }
+.ib-cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
+.ib-cap { display: flex; justify-content: space-between; font: 700 11px var(--ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 0 0 6px; border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+.ibitsibo { list-style: none; margin: 0; padding: 0; }
 .ibitsibo li a { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; font: 500 15px var(--ui); color: var(--ink); }
 .ibitsibo li a .dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); }
 .ibitsibo li a .n { color: var(--muted); font-size: 14px; }
@@ -250,7 +251,8 @@ footer .sep { margin: 0 6px; opacity: .6; }
   .col-main { display: contents; }
   .col-ish { order: 1; } .col-cats { order: 2; } .howto { order: 3; }
   .howto-grid { grid-template-columns: 1fr; gap: 20px; }
-  .ibitsibo { columns: 1; }
+  .ib-cols { grid-template-columns: 1fr; }
+  .ib-cap-more { display: none; }
   .cover .try { font-size: 13px; }
   .ishakiro a { grid-template-columns: 44px 1fr; }
   .ishakiro a span { padding: 7px 14px; font-size: 15px; }

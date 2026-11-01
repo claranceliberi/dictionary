@@ -50,13 +50,18 @@
 
         <section class="col-cats">
           <h2 class="ttl">Ibitsibo</h2>
-          <ul class="ibitsibo">
-            <li v-for="cat in categories" :key="cat.name">
-              <router-link :to="categoryLink(cat.name)">
-                <span>{{ cat.name }}</span><span class="dots"></span><span class="n">{{ cat.count }}</span>
-              </router-link>
-            </li>
-          </ul>
+          <div class="ib-cols">
+            <div v-for="(col, ci) in categoryColumns" :key="ci" class="ib-col">
+              <div class="ib-cap" :class="{ 'ib-cap-more': ci > 0 }"><span>Igitsibo</span><span>Amagambo</span></div>
+              <ul class="ibitsibo">
+                <li v-for="cat in col" :key="cat.name">
+                  <router-link :to="categoryLink(cat.name)">
+                    <span>{{ cat.name }}</span><span class="dots"></span><span class="n">{{ cat.count }}</span>
+                  </router-link>
+                </li>
+              </ul>
+            </div>
+          </div>
         </section>
       </div>
     </div>
@@ -84,6 +89,13 @@ export default {
     letters: { type: Array, default: () => [] },
     stats: { type: Object, default: () => ({}) },
     categories: { type: Array, default: () => [] },
+  },
+  computed: {
+    // two columns, filled top to bottom, so each can carry its own header row
+    categoryColumns() {
+      const half = Math.ceil(this.categories.length / 2)
+      return [this.categories.slice(0, half), this.categories.slice(half)].filter((c) => c.length)
+    },
   },
   data() {
     const drawRibbon = !ribbonDrawn
