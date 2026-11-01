@@ -48,6 +48,10 @@ jobs:
         run: npm ci --silent
         working-directory: frontend
 
+      - name: Test
+        run: npm test
+        working-directory: frontend
+
       - name: Build
         run: npm run build
         working-directory: frontend
