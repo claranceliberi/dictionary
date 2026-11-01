@@ -70,7 +70,7 @@ On blue or green fills in dark mode, the text colour is `#0E1B2B`, not white.
 ### Motifs
 
 - **Zigzag ribbon:** three parallel zigzags (sky, yellow, green), drawn as an inline SVG `<pattern>` so the colours follow the theme tokens. On desktop it runs vertically down the left margin, 34px wide, as on every page of the book. On phone it runs horizontally across the top, 22px tall.
-- **Running head:** "INKORANYAMUGA Y'IKORANABUHANGA" in italic green small caps on a faint gradient wash, as at the top of each page of the book. It appears on letter pages and the example "page".
+- **Running head:** "INKORANYAMUGA Y'IKORANABUHANGA" in italic green small caps on a faint gradient wash, as at the top of each page of the book. On letter pages it sits **below the pagination**, at the foot of the list (user decision); on the example "page" it stays at the top.
 - **Letter roundel:** a blue circle with the letter in Bodoni, as in the book.
 
 ## Pages and components
@@ -98,7 +98,7 @@ On blue or green fills in dark mode, the text colour is `#0E1B2B`, not white.
 ### Letter page `/browse/:letter` and search `/search?q=`
 - **Desktop:** a sticky vertical blue letter-tab column on the left; the active letter is yellow. **Phone:** a horizontally scrolling blue letter strip instead.
 - **Heading:**
-  - letter pages: the running head, the letter roundel and "Amagambo N";
+  - letter pages: the letter roundel and "Amagambo N";
   - search results: "Ibisubizo bya “q”" and "Amagambo N" instead of the roundel.
 - **Each entry, max 720px wide:**
   1. headword (Bodoni) linking to the entry page, with the pronunciation in parentheses (muted);
