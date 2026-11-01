@@ -4,10 +4,10 @@
       <img :src="`/images/${image}`" :alt="entry.term" loading="lazy" />
     </figure>
     <div>
-      <router-link :to="`/entry/${entry.id}`" class="hw">{{ entry.term }}</router-link>
-      <span v-if="entry.pronunciation" class="pr">({{ entry.pronunciation }})</span>
+      <router-link :to="`/entry/${entry.id}`" class="hw"><Hl :text="entry.term" :q="q" /></router-link>
+      <span v-if="entry.pronunciation" class="pr">(<Hl :text="entry.pronunciation" :q="q" />)</span>
     </div>
-    <p v-if="definition" class="def">{{ definition }}</p>
+    <p v-if="definition" class="def"><Hl :text="definition" :q="q" /></p>
     <dl class="meta">
       <template v-for="row in rows" :key="row.key">
         <dt><abbr tabindex="0" :data-full="FULL[row.key]" :aria-label="FULL[row.key]">{{ row.key }}</abbr></dt>
@@ -15,13 +15,13 @@
           <template v-if="row.key === 'HI'">
             <template v-for="(s, i) in synonyms" :key="i">
               <template v-if="i">; </template>
-              <b v-if="i === 0">{{ s.term }}</b><template v-else>{{ s.term }}</template>
+              <b v-if="i === 0"><Hl :text="s.term" :q="q" /></b><Hl v-else :text="s.term" :q="q" />
               <span v-if="s.pron" class="mut"> ({{ s.pron }})</span>
             </template>
           </template>
           <template v-else-if="row.key === 'NK'">{{ entry.category }}</template>
           <template v-else>
-            <b>{{ row.terms.main }}</b><template v-if="row.terms.rest.length">; {{ row.terms.rest.join('; ') }}</template>
+            <b><Hl :text="row.terms.main" :q="q" /></b><template v-for="t in row.terms.rest" :key="t">; <Hl :text="t" :q="q" /></template>
           </template>
         </dd>
       </template>
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import Hl from './Hl.vue'
 import { splitTerms, splitSynonyms, stripMarks } from '../format.js'
 
 const FULL = {
@@ -41,9 +42,13 @@ const FULL = {
 
 export default {
   name: 'EntryCard',
+  components: { Hl },
   props: {
     entry: { type: Object, required: true },
     hideImage: { type: Boolean, default: false },
+    // search query to mark; the category is left alone because a search for
+    // "mudasobwa" would otherwise mark it on most results
+    q: { type: String, default: '' },
   },
   data() {
     return { FULL }

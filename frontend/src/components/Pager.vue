@@ -1,20 +1,22 @@
 <template>
   <nav v-if="pages.length" class="pager" aria-label="Amapaji">
-    <a v-if="page > 1" href="#" aria-label="Ipaji ibanza" @click.prevent="$emit('go', page - 1)">‹</a>
+    <a v-if="page > 1" href="#" aria-label="Ipaji ibanza" @click.prevent="$emit('go', page - 1)"><Icon name="chevron-left" /></a>
     <template v-for="(p, i) in pages" :key="`${p}-${i}`">
       <span v-if="p === '…'" class="gap" aria-hidden="true">…</span>
       <span v-else-if="p === page" class="cur" aria-current="page">{{ p }}</span>
       <a v-else href="#" @click.prevent="$emit('go', p)">{{ p }}</a>
     </template>
-    <a v-if="page < totalPages" href="#" aria-label="Ipaji ikurikira" @click.prevent="$emit('go', page + 1)">›</a>
+    <a v-if="page < totalPages" href="#" aria-label="Ipaji ikurikira" @click.prevent="$emit('go', page + 1)"><Icon name="chevron-right" /></a>
   </nav>
 </template>
 
 <script>
+import Icon from './Icon.vue'
 import { pageWindow } from '../format.js'
 
 export default {
   name: 'Pager',
+  components: { Icon },
   props: {
     page: { type: Number, required: true },
     totalPages: { type: Number, required: true },

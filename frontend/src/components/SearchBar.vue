@@ -1,6 +1,7 @@
 <template>
   <div class="search-box">
     <form class="search" role="search" @submit.prevent="onEnter">
+      <Icon name="search" class="search-icon" />
       <input
         ref="inputEl"
         v-model="localQuery"
@@ -14,7 +15,7 @@
         @focus="onFocus"
         @blur="onBlur"
       />
-      <button type="submit">Shakisha</button>
+      <button type="submit"><Icon name="search" class="btn-icon" /><span class="btn-text">Shakisha</span></button>
     </form>
 
     <div
@@ -33,7 +34,7 @@
           class="sdrop-row"
           :class="{ on: dropdownIdx === i }"
           @mousedown.prevent="pickRecent(r)"
-        >{{ r }}</button>
+        ><Icon name="clock" :size="15" class="row-icon" />{{ r }}</button>
       </template>
 
       <template v-else>
@@ -48,12 +49,12 @@
             @mousedown.prevent
             @click="onAutocompleteClick(item)"
           >
-            <span class="hw">{{ item.term }}</span>
-            <span v-if="item.pronunciation" class="pr">({{ item.pronunciation }})</span>
-            <span v-if="item.english" class="en">{{ splitTerms(item.english).main }}</span>
+            <span class="hw"><Hl :text="item.term" :q="localQuery" /></span>
+            <span v-if="item.pronunciation" class="pr">(<Hl :text="item.pronunciation" :q="localQuery" />)</span>
+            <span v-if="item.english" class="en"><Hl :text="splitTerms(item.english).main" :q="localQuery" /></span>
           </router-link>
           <button type="button" class="sdrop-all" @mousedown.prevent="submit">
-            Reba ibisubizo byose kuri “{{ localQuery }}” →
+            <Icon name="search" :size="15" class="row-icon" />Reba ibisubizo byose kuri “{{ localQuery }}”
           </button>
         </template>
         <div v-else class="sdrop-note">Nta jambo ryabonetse</div>
@@ -64,6 +65,8 @@
 
 <script>
 import axios from 'axios'
+import Hl from './Hl.vue'
+import Icon from './Icon.vue'
 import { splitTerms } from '../format.js'
 
 const RECENT_KEY = 'rw-recent-searches'
@@ -71,6 +74,7 @@ const MAX_RECENT = 6
 
 export default {
   name: 'SearchBar',
+  components: { Hl, Icon },
   props: {
     modelValue: { type: String, default: '' },
     placeholder: { type: String, default: 'Shakisha ijambo…' },

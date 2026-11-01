@@ -1,11 +1,13 @@
 <template>
+  <div class="loadbar" :class="{ on: loading.visible }" role="progressbar" aria-label="Birimo gushakishwa" :aria-hidden="!loading.visible"></div>
   <Ribbon orientation="h" />
 
   <header>
     <div class="wrap">
       <div class="bar">
         <router-link class="mark" to="/">
-          <span>Inkoranyamuga</span><span>y'Ikoranabuhanga</span>
+          <img class="logo" src="/favicon.svg" alt="" width="34" height="34" />
+          <span class="mark-text"><span>Inkoranyamuga</span><span>y'Ikoranabuhanga</span></span>
         </router-link>
         <SearchBar
           v-if="!isHome"
@@ -14,16 +16,16 @@
           class="hsearch"
           @search="onSearch"
         />
-        <router-link class="hlink" to="/uko-wasoma">Uko wasoma</router-link>
+        <router-link class="hlink" to="/uko-wasoma" aria-label="Uko wasoma">
+          <Icon name="help" /><span class="tl">Uko wasoma</span>
+        </router-link>
         <button
           class="theme"
           type="button"
           :aria-label="darkMode ? 'Koresha urumuri' : 'Koresha umwijima'"
           @click="toggleDark"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-          </svg>
+          <Icon :name="darkMode ? 'sun' : 'moon'" />
           <span class="tl">{{ darkMode ? 'Urumuri' : 'Umwijima' }}</span>
         </button>
       </div>
@@ -31,7 +33,11 @@
   </header>
 
   <main class="view">
-    <router-view :letters="letters" :stats="stats" :categories="categories" />
+    <router-view v-slot="{ Component, route }">
+      <Transition name="page" mode="out-in">
+        <component :is="Component" :key="route.path" :letters="letters" :stats="stats" :categories="categories" />
+      </Transition>
+    </router-view>
   </main>
 
   <footer>
@@ -47,14 +53,16 @@
 
 <script>
 import axios from 'axios'
+import Icon from './components/Icon.vue'
 import Ribbon from './components/Ribbon.vue'
+import { loading } from './loading.js'
 import SearchBar from './components/SearchBar.vue'
 
 const THEME_KEY = 'rw-dark-mode'
 
 export default {
   name: 'App',
-  components: { Ribbon, SearchBar },
+  components: { Icon, Ribbon, SearchBar },
   data() {
     return {
       query: '',
@@ -62,6 +70,7 @@ export default {
       stats: { total_entries: 0 },
       categories: [],
       darkMode: false,
+      loading,
     }
   },
   computed: {
@@ -101,6 +110,10 @@ export default {
       document.documentElement.dataset.theme = this.darkMode ? 'dark' : 'light'
     },
     toggleDark() {
+      // Colours cross-fade only while switching, not on every page load.
+      const root = document.documentElement
+      root.classList.add('theming')
+      setTimeout(() => root.classList.remove('theming'), 300)
       this.darkMode = !this.darkMode
       localStorage.setItem(THEME_KEY, String(this.darkMode))
       this.applyTheme()
