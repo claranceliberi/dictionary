@@ -42,6 +42,20 @@ header .bar { display: flex; align-items: center; gap: 28px; height: 68px; }
 .hlink:hover { color: var(--blue); }
 .theme { display: flex; align-items: center; gap: 8px; font: 600 13px var(--ui); color: var(--ink-2); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
 .hsearch { flex: 1; max-width: 560px; }
+/* search box: the form keeps the mockup's look; the dropdown hangs under it */
+.search-box { position: relative; }
+.search-box .search { max-width: none; }
+.search input::-webkit-search-cancel-button { cursor: pointer; }
+.sdrop { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20; background: var(--bg); border: 1.5px solid var(--blue); border-radius: 6px; overflow: hidden; color: var(--ink); text-align: left; }
+.sdrop-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px 4px; font: 700 11px var(--ui); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.sdrop-head button { font: 600 12px var(--ui); color: var(--blue); background: none; border: 0; cursor: pointer; text-transform: none; letter-spacing: 0; }
+.sdrop-row { display: block; width: 100%; padding: 9px 14px; font: 500 15px var(--ui); color: var(--ink); background: none; border: 0; border-top: 1px solid var(--line); text-align: left; cursor: pointer; }
+.sdrop-row:hover, .sdrop-row.on { background: var(--hover); }
+.sdrop-row .hw { font: 900 16px var(--head); }
+.sdrop-row .pr { color: var(--muted); font: 14px var(--text); margin-left: 6px; }
+.sdrop-row .en { display: block; font: 14px var(--text); color: var(--ink-2); margin-top: 2px; }
+.sdrop-all { display: block; width: 100%; padding: 9px 14px; font: 700 13px var(--ui); color: var(--blue); background: var(--row); border: 0; border-top: 1px solid var(--line); text-align: left; cursor: pointer; }
+.sdrop-note { padding: 10px 14px; font: 500 14px var(--ui); color: var(--muted); }
 
 /* home: cover */
 .cover { background: var(--cover); color: var(--cover-ink); position: relative; }
