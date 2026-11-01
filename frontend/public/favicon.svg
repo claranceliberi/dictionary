@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#1D6CB5"/>
+  <g fill="none" stroke-width="3.2" stroke-linejoin="miter">
+    <polyline stroke="#18A0DB" points="8,4 13,10 8,16 13,22 8,28 13,34 8,40 13,46 8,52 13,58 8,64"/>
+    <polyline stroke="#F5D000" points="13,4 18,10 13,16 18,22 13,28 18,34 13,40 18,46 13,52 18,58 13,64"/>
+    <polyline stroke="#2F9A46" points="18,4 23,10 18,16 23,22 18,28 23,34 18,40 23,46 18,52 23,58 18,64"/>
+  </g>
+  <rect x="37" y="15" width="9" height="34" fill="#fff"/>
+  <rect x="31" y="13" width="21" height="3.5" fill="#fff"/>
+  <rect x="31" y="47.5" width="21" height="3.5" fill="#fff"/>
+</svg>

@@ -10,16 +10,24 @@
             <h1 class="results-title">Ibisubizo bya “{{ $route.query.q }}”</h1>
           </template>
           <div v-else class="roundel">{{ letter }}</div>
-          <div v-if="total !== null" class="count">Amagambo {{ total }}</div>
+          <div v-if="total !== null" class="count">{{ countLabel(total) }}</div>
 
           <p v-if="loading" class="state">Gushakisha…</p>
           <div v-else-if="!entries.length" class="state">
+            <Icon name="search-x" :size="34" class="state-icon" />
             <p class="state-title">Nta jambo ryabonetse</p>
             <p>Gerageza ijambo rindi cyangwa inyuguti</p>
             <router-link to="/">← Garuka ahabanza</router-link>
           </div>
           <template v-else>
-            <EntryCard v-for="entry in entries" :key="entry.id" :entry="entry" />
+            <EntryCard
+              v-for="(entry, i) in entries"
+              :key="entry.id"
+              :entry="entry"
+              :q="isSearch ? $route.query.q : ''"
+              class="rise"
+              :style="{ '--i': Math.min(i, 10) }"
+            />
             <Pager :page="page" :total-pages="totalPages" @go="goToPage" />
           </template>
 
@@ -33,6 +41,8 @@
 <script>
 import axios from 'axios'
 import EntryCard from '../components/EntryCard.vue'
+import Icon from '../components/Icon.vue'
+import { countLabel } from '../format.js'
 import LetterNav from '../components/LetterNav.vue'
 import Pager from '../components/Pager.vue'
 import Ribbon from '../components/Ribbon.vue'
@@ -41,7 +51,7 @@ const PER_PAGE = 50
 
 export default {
   name: 'BrowseView',
-  components: { EntryCard, LetterNav, Pager, Ribbon },
+  components: { EntryCard, Icon, LetterNav, Pager, Ribbon },
   props: {
     letters: { type: Array, default: () => [] },
   },
@@ -58,8 +68,10 @@ export default {
   },
   created() { this.fetch() },
   methods: {
+    countLabel,
     async fetch() {
       this.loading = true
+      this.total = null
       try {
         const res = this.isSearch
           ? await axios.get('/api/search', { params: { q: this.$route.query.q, page: this.page, per_page: PER_PAGE } })

@@ -1,7 +1,7 @@
 <template>
   <div>
     <section class="cover">
-      <Ribbon orientation="v" />
+      <Ribbon orientation="v" :class="{ 'draw-in': drawRibbon }" />
       <div class="wrap">
         <h1>Inkoranyamuga<br />y'Ikoranabuhanga</h1>
         <p>
@@ -42,10 +42,8 @@
               <router-link class="more" to="/uko-wasoma">Soma ibisobanuro byose <span aria-hidden="true">→</span></router-link>
             </div>
             <figure class="minipage" aria-label="Urugero">
-              <div class="runhead">Inkoranyamuga y'ikoranabuhanga</div>
               <div class="mp-lb">Urugero</div>
               <EntryCard v-if="example" :entry="example" hide-image />
-              <div class="mp-foot"><span>M</span></div>
             </figure>
           </div>
         </section>
@@ -76,6 +74,8 @@ import { categoryLink } from '../format.js'
 const TRY = ['mudasobwa', 'imeri', 'murandasi', 'mikoro']
 // Mikoro: a short entry that has every field except a second translation.
 const EXAMPLE_ID = 1140
+// The cover ribbon draws itself in on the first visit only, not on every return home.
+let ribbonDrawn = false
 
 export default {
   name: 'HomeView',
@@ -86,7 +86,9 @@ export default {
     categories: { type: Array, default: () => [] },
   },
   data() {
-    return { query: '', example: null, TRY }
+    const drawRibbon = !ribbonDrawn
+    ribbonDrawn = true
+    return { query: '', example: null, TRY, drawRibbon }
   },
   async created() {
     try {

@@ -6,6 +6,9 @@ import BrowseView from './views/BrowseView.vue'
 import EntryView from './views/EntryView.vue'
 import GuideView from './views/GuideView.vue'
 import './style.css'
+import { trackRequests } from './loading.js'
+
+trackRequests()
 
 const router = createRouter({
   history: createWebHistory(),

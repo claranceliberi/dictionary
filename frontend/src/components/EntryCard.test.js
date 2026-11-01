@@ -65,6 +65,14 @@ describe('EntryCard', () => {
     expect(hi.text()).toContain('disike ngendanwa')
   })
 
+  it('marks the search query in the headword, definition and translations, but not the category', () => {
+    const w = mountCard({ ...menu, english: 'Start menu; menu bar' }, { q: 'menu' })
+    expect(w.find('.hw mark').exists()).toBe(false)
+    const marked = w.findAll('mark').map((m) => m.text())
+    expect(marked).toEqual(['menu', 'menu', 'Menu', 'menu'])
+    expect(w.findAll('dd')[3].find('mark').exists()).toBe(false)
+  })
+
   it('can hide the image for the home page example', () => {
     expect(mountCard(menu, { hideImage: true }).find('img').exists()).toBe(false)
   })
