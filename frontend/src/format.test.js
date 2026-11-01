@@ -1,5 +1,36 @@
 import { describe, it, expect } from 'vitest'
-import { stripMarks, splitTerms, splitSynonym, pageWindow, categoryLink, splitSynonyms } from './format.js'
+import { stripMarks, splitTerms, splitSynonym, pageWindow, categoryLink, splitSynonyms, countLabel, highlight } from './format.js'
+
+describe('countLabel', () => {
+  it('uses the singular for exactly one word', () => {
+    expect(countLabel(1)).toBe('Ijambo 1')
+  })
+  it('uses the plural otherwise', () => {
+    expect(countLabel(0)).toBe('Amagambo 0')
+    expect(countLabel(55)).toBe('Amagambo 55')
+  })
+})
+
+describe('highlight', () => {
+  const hits = (parts) => parts.filter((p) => p.hit).map((p) => p.text)
+
+  it('marks every case-insensitive match and keeps the rest of the text intact', () => {
+    const parts = highlight('Mudasobwa ya mudasobwa', 'mudasobwa')
+    expect(hits(parts)).toEqual(['Mudasobwa', 'mudasobwa'])
+    expect(parts.map((p) => p.text).join('')).toBe('Mudasobwa ya mudasobwa')
+  })
+  it('ignores tone marks, so a plain query matches the pronunciation', () => {
+    expect(hits(highlight('(mūdasobwā ngeendânwa)', 'mudasobwa'))).toEqual(['mūdasobwā'])
+  })
+  it('matches inside longer words', () => {
+    expect(hits(highlight('Umujyo nyatsamudasobwa', 'mudasobwa'))).toEqual(['mudasobwa'])
+  })
+  it('returns the text unmarked when there is no query or no match', () => {
+    expect(highlight('Mikoro', '')).toEqual([{ text: 'Mikoro', hit: false }])
+    expect(highlight('Mikoro', 'imeri')).toEqual([{ text: 'Mikoro', hit: false }])
+    expect(highlight('', 'x')).toEqual([])
+  })
+})
 import { readFileSync } from 'node:fs'
 
 describe('dark theme fills', () => {
