@@ -23,7 +23,7 @@ WORKDIR /app/backend
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/main.py backend/database.py ./
+COPY backend/main.py backend/database.py backend/pages.py ./
 
 # Artefacts from other stages
 COPY --from=parser    /app/backend/dictionary.db .

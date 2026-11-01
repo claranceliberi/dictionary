@@ -1,12 +1,14 @@
 import json
 import os
+import re
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 from database import get_db
+from pages import entry_path, render_entry_page, sitemap_xml
 
 app = FastAPI(title="Inkoranyamuga y'Ikoranabuhanga")
 
@@ -20,6 +22,8 @@ app.add_middleware(
 BASE_DIR   = Path(__file__).parent.parent
 IMAGES_DIR = BASE_DIR / "images"
 DIST_DIR   = Path(os.environ.get("DIST_DIR", BASE_DIR / "dist"))
+# Absolute site address for canonical links, link previews and the sitemap.
+PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://dict.clarance.me").rstrip("/")
 
 app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
 
@@ -33,6 +37,7 @@ def row_to_dict(row) -> dict:
             d["images"] = []
     else:
         d["images"] = []
+    d["slug"] = entry_path(d)
     return d
 
 
@@ -192,10 +197,53 @@ class HashedAssets(StaticFiles):
         return response
 
 
+def find_entry(entry_id: int):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM entries WHERE id = ?", (entry_id,)).fetchone()
+    conn.close()
+    return row_to_dict(row) if row else None
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap():
+    conn = get_db()
+    rows = conn.execute("SELECT id, term FROM entries ORDER BY id").fetchall()
+    conn.close()
+    return Response(sitemap_xml([dict(r) for r in rows], PUBLIC_URL), media_type="application/xml")
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return PlainTextResponse(f"User-agent: *\nAllow: /\nSitemap: {PUBLIC_URL}/sitemap.xml\n")
+
+
 if DIST_DIR.exists():
     app.mount("/assets", HashedAssets(directory=str(DIST_DIR / "assets")), name="assets")
 
     DIST_ROOT = DIST_DIR.resolve()
+
+    def app_shell(status_code: int = 200) -> HTMLResponse:
+        return HTMLResponse((DIST_ROOT / "index.html").read_text(), status_code=status_code, headers=NO_CACHE)
+
+    # Word pages: /ijambo/<id>-<slug>. Any other spelling of the address, and the
+    # old /entry/<id> links, redirect permanently to the readable one.
+    @app.get("/ijambo/{word}", include_in_schema=False)
+    def word_page(word: str):
+        match = re.match(r"(\d+)(?:-|$)", word)
+        entry = find_entry(int(match.group(1))) if match else None
+        if not entry:
+            return app_shell(404)
+        if word != entry["slug"]:
+            return RedirectResponse(f"/ijambo/{entry['slug']}", status_code=301)
+        index_html = (DIST_ROOT / "index.html").read_text()
+        return HTMLResponse(render_entry_page(index_html, entry, PUBLIC_URL), headers=NO_CACHE)
+
+    @app.get("/entry/{entry_id}", include_in_schema=False)
+    def old_entry_link(entry_id: str):
+        entry = find_entry(int(entry_id)) if entry_id.isdigit() else None
+        if not entry:
+            return app_shell(404)
+        return RedirectResponse(f"/ijambo/{entry['slug']}", status_code=301)
 
     @app.get("/{full_path:path}", include_in_schema=False)
     def spa_fallback(full_path: str):

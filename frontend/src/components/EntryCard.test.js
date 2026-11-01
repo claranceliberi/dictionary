@@ -4,6 +4,7 @@ import EntryCard from './EntryCard.vue'
 
 const menu = {
   id: 1138,
+  slug: '1138-meni-yo-gutangira',
   term: 'Meni yo gutangira',
   pronunciation: 'meni yô gutâangira',
   synonym: "Ingingo y'ihagurutsa (ingiingo y'ihâgurutsa)",
@@ -71,6 +72,10 @@ describe('EntryCard', () => {
     const marked = w.findAll('mark').map((m) => m.text())
     expect(marked).toEqual(['menu', 'menu', 'Menu', 'menu'])
     expect(w.findAll('dd')[3].find('mark').exists()).toBe(false)
+  })
+
+  it('links the headword to the readable word URL', () => {
+    expect(mountCard(menu).findComponent(RouterLinkStub).props('to')).toBe('/ijambo/1138-meni-yo-gutangira')
   })
 
   it('can hide the image for the home page example', () => {

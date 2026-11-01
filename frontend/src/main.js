@@ -16,7 +16,9 @@ const router = createRouter({
     { path: '/', component: HomeView },
     { path: '/browse/:letter', component: BrowseView },
     { path: '/search', component: BrowseView },
-    { path: '/entry/:id', component: EntryView },
+    // /ijambo/<id>-<slug>, e.g. /ijambo/1158-mubitsi; the number identifies the word
+    { path: '/ijambo/:slug', component: EntryView },
+    { path: '/entry/:id', redirect: (to) => `/ijambo/${to.params.id}` },
     { path: '/uko-wasoma', component: GuideView },
   ],
   scrollBehavior: () => ({ top: 0 }),

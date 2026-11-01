@@ -12,7 +12,9 @@ def client(tmp_path, monkeypatch):
     """The app serving a small fake frontend build from a temporary dist/."""
     dist = tmp_path / "dist"
     (dist / "assets").mkdir(parents=True)
-    (dist / "index.html").write_text("<!doctype html><title>t</title>")
+    (dist / "index.html").write_text(
+        "<!doctype html><html><head><title>t</title></head><body><div id=\"app\"></div></body></html>"
+    )
     (dist / "assets" / "index-abc123.js").write_text("console.log(1)")
     (dist / "favicon.svg").write_text("<svg xmlns='http://www.w3.org/2000/svg'/>")
     (tmp_path / "secret.txt").write_text("SECRET-OUTSIDE-DIST")
@@ -49,6 +51,46 @@ def test_files_outside_the_build_are_never_served(client, path):
     assert "root:" not in r.text
     # anything that isn't a real file in dist/ falls back to the app shell
     assert r.headers["content-type"].startswith("text/html")
+
+
+def test_entries_carry_their_readable_path(client):
+    assert client.get("/api/entries/1158").json()["slug"] == "1158-mubitsi"
+    assert all("slug" in e for e in client.get("/api/entries", params={"letter": "M"}).json()["entries"])
+
+
+def test_word_page_is_served_with_the_entry_filled_in(client):
+    r = client.get("/ijambo/1158-mubitsi")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/html")
+    assert r.headers["cache-control"] == NO_CACHE
+    assert "<h1>Mubitsi</h1>" in r.text
+    assert 'rel="canonical" href="https://dict.clarance.me/ijambo/1158-mubitsi"' in r.text
+
+
+@pytest.mark.parametrize("path", ["/ijambo/1158", "/ijambo/1158-wrong-name", "/entry/1158"])
+def test_other_addresses_for_a_word_redirect_to_its_readable_url(client, path):
+    r = client.get(path, follow_redirects=False)
+    assert r.status_code == 301
+    assert r.headers["location"] == "/ijambo/1158-mubitsi"
+
+
+@pytest.mark.parametrize("path", ["/ijambo/999999-nta", "/ijambo/mubitsi", "/entry/999999"])
+def test_unknown_words_get_the_app_shell_with_404(client, path):
+    r = client.get(path, follow_redirects=False)
+    assert r.status_code == 404
+    assert r.headers["content-type"].startswith("text/html")
+
+
+def test_sitemap_lists_all_words(client):
+    r = client.get("/sitemap.xml")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/xml")
+    assert r.text.count("/ijambo/") == client.get("/api/stats").json()["total_entries"]
+
+
+def test_robots_points_to_the_sitemap(client):
+    r = client.get("/robots.txt")
+    assert "Sitemap: https://dict.clarance.me/sitemap.xml" in r.text
 
 
 def test_api_responses_are_left_alone(client):

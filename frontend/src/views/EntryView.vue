@@ -83,7 +83,7 @@
 import axios from 'axios'
 import Icon from '../components/Icon.vue'
 import Ribbon from '../components/Ribbon.vue'
-import { splitTerms, splitSynonyms, stripMarks, categoryLink } from '../format.js'
+import { splitTerms, splitSynonyms, stripMarks, categoryLink, entryTitle } from '../format.js'
 
 export default {
   name: 'EntryView',
@@ -98,18 +98,22 @@ export default {
     definition() { return stripMarks(this.entry?.definition) },
     english() { return splitTerms(this.entry?.english) },
     french() { return splitTerms(this.entry?.french) },
+    // /ijambo/1158-mubitsi → 1158; the words after the number are for people
+    entryId() { return parseInt(this.$route.params.slug, 10) },
   },
   watch: {
-    '$route.params.id'() { this.fetch() },
+    entryId(id, old) { if (id !== old) this.fetch() },
   },
   created() { this.fetch() },
   methods: {
     categoryLink,
     async fetch() {
-      if (!this.$route.params.id) return
+      if (!this.entryId) { this.entry = null; return }
       this.loading = true
       try {
-        this.entry = (await axios.get(`/api/entries/${this.$route.params.id}`)).data
+        this.entry = (await axios.get(`/api/entries/${this.entryId}`)).data
+        document.title = entryTitle(this.entry)
+        if (this.entry.slug !== this.$route.params.slug) this.$router.replace(`/ijambo/${this.entry.slug}`)
       } catch {
         this.entry = null
       } finally {

@@ -41,6 +41,14 @@ export function splitSynonyms(s) {
   return stripMarks(s).split(';').map((p) => splitSynonym(p)).filter((p) => p.term || p.pron)
 }
 
+export const SITE_TITLE = "Inkoranyamuga y'Ikoranabuhanga"
+
+// Matches the <title> the server sends for /ijambo/ pages.
+export function entryTitle(entry) {
+  const english = splitTerms(entry.english).main
+  return `${stripMarks(entry.term)}${english ? ` — ${english}` : ''} | ${SITE_TITLE}`
+}
+
 export function countLabel(n) {
   return n === 1 ? 'Ijambo 1' : `Amagambo ${n}`
 }
