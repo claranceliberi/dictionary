@@ -41,7 +41,7 @@ header .bar { display: flex; align-items: center; gap: 28px; height: 68px; }
 .hlink { margin-left: auto; font: 600 13px var(--ui); color: var(--ink-2); padding: 8px 4px; }
 .hlink:hover { color: var(--blue); }
 .theme { display: flex; align-items: center; gap: 8px; font: 600 13px var(--ui); color: var(--ink-2); background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
-.phone-search { display: none; }
+.hsearch { flex: 1; max-width: 560px; }
 
 /* home: cover */
 .cover { background: var(--cover); color: var(--cover-ink); position: relative; }
@@ -214,13 +214,11 @@ footer .sep { margin: 0 6px; opacity: .6; }
   .ribbon-v { display: none; }
   .ribbon-h { display: block; }
   .wrap { padding: 0 16px; }
-  header .bar { height: 58px; gap: 12px; }
-  header .bar .search { display: none; }
+  header .bar { height: auto; gap: 10px 12px; flex-wrap: wrap; padding: 10px 0 12px; }
+  header .bar .hsearch { order: 3; flex-basis: 100%; max-width: none; }
   .theme .tl { display: none; }
   .hlink { display: none; }
   .theme { margin-left: auto; }
-  .phone-search { display: block; padding: 0 0 12px; }
-  .phone-search .search { max-width: none; }
   .cover .wrap { padding-top: 28px; padding-bottom: 32px; }
   .cover h1 { font-size: 30px; }
   .cover p { font-size: 14px; margin-bottom: 22px; }

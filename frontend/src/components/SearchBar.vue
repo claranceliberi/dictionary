@@ -213,6 +213,9 @@ export default {
     },
   },
   methods: {
+    focus() {
+      this.$refs.inputEl?.focus()
+    },
     onEnter() {
       if (this.dropdownIdx >= 0) {
         const list = this.localQuery.trim() ? this.dropdownItems : this.recentSearches

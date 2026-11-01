@@ -4,6 +4,7 @@ import App from './App.vue'
 import HomeView from './views/HomeView.vue'
 import BrowseView from './views/BrowseView.vue'
 import EntryView from './views/EntryView.vue'
+import GuideView from './views/GuideView.vue'
 import './style.css'
 
 const router = createRouter({
@@ -13,6 +14,7 @@ const router = createRouter({
     { path: '/browse/:letter', component: BrowseView },
     { path: '/search', component: BrowseView },
     { path: '/entry/:id', component: EntryView },
+    { path: '/uko-wasoma', component: GuideView },
   ],
   scrollBehavior: () => ({ top: 0 }),
 })
