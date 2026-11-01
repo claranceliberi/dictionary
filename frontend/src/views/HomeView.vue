@@ -17,39 +17,18 @@
       </div>
     </section>
 
-    <div class="wrap home-body">
-      <section class="col-ish">
-        <h2 class="ttl">Ishakiro</h2>
-        <p class="cap">Inyuguti n'umubare w'amagambo</p>
-        <LetterNav variant="table" :letters="letters" />
+    <div class="wrap home-c">
+      <section class="home-sect">
+        <h2 class="ttl">Inyuguti</h2>
+        <p class="cap">Kanda ku nyuguti ubone amagambo yose atangirira kuri yo.</p>
+        <LetterNav variant="band" :letters="letters" />
       </section>
 
-      <div class="col-main">
-        <section class="howto">
-          <h2 class="ttl">Urutonde rw'ibimenyetso mpine</h2>
-          <div class="howto-grid">
-            <div>
-              <p class="intro">
-                Buri jambo rikurikirwa n'imisomere yaryo mu dukubo, hanyuma inshoza yaryo. Munsi yayo haza
-                ibindi biriranga, buri kimwe kibanzirizwa n'impine yacyo:
-              </p>
-              <dl class="legend">
-                <dt>HI</dt><dd><b>Impuzanyito</b> — iryuga rivuga kimwe n'ijambo ry'indatwa.</dd>
-                <dt>Eng</dt><dd><b>Icyongereza</b> — iyo amagambo ari menshi, iry'indatwa ryandikwa mu nyuguti zitsindagiye, ayandi akarikurikira.</dd>
-                <dt>Fr</dt><dd><b>Igifaransa</b> — byandikwa kimwe n'Icyongereza.</dd>
-                <dt>NK</dt><dd><b>Igitsibo</b> — ingeri y'ikoranabuhanga ijambo ribarizwamo.</dd>
-              </dl>
-              <router-link class="more" to="/uko-wasoma">Soma ibisobanuro byose <span aria-hidden="true">→</span></router-link>
-            </div>
-            <figure class="minipage" aria-label="Urugero">
-              <div class="mp-lb">Urugero</div>
-              <EntryCard v-if="example" :entry="example" hide-image />
-            </figure>
-          </div>
-        </section>
-
-        <section class="col-cats">
+      <div class="home-pair">
+        <section class="home-sect col-cats">
           <h2 class="ttl">Ibitsibo</h2>
+          <p class="cap">Ingeri z'ikoranabuhanga n'umubare w'amagambo muri buri imwe.</p>
+          <div class="ib-cap"><span>Igitsibo</span><span>Amagambo</span></div>
           <ul class="ibitsibo">
             <li v-for="cat in categories" :key="cat.name">
               <router-link :to="categoryLink(cat.name)">
@@ -57,6 +36,16 @@
               </router-link>
             </li>
           </ul>
+        </section>
+
+        <section class="home-sect">
+          <h2 class="ttl">Uko wasoma</h2>
+          <p class="cap">Uko ijambo ryanditse: imisomere, inshoza n'ibindi biriranga.</p>
+          <figure class="minipage" aria-label="Urugero">
+            <div class="mp-lb">Urugero</div>
+            <EntryCard v-if="example" :entry="example" hide-image />
+          </figure>
+          <router-link class="more" to="/uko-wasoma">Soma ibisobanuro byose <span aria-hidden="true">→</span></router-link>
         </section>
       </div>
     </div>

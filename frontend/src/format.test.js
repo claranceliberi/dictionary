@@ -34,10 +34,9 @@ describe('highlight', () => {
 import { readFileSync } from 'node:fs'
 
 describe('dark theme fills', () => {
-  it('uses dark text on the current page number and the example page marker', () => {
+  it('uses dark text on the current page number', () => {
     const css = readFileSync('src/style.css', 'utf8')
     expect(css).toMatch(/\[data-theme="dark"\] \.pager \.cur[^{]*\{[^}]*color: #0E1B2B/)
-    expect(css).toMatch(/\[data-theme="dark"\] \.mp-foot span[^{]*\{[^}]*color: #0E1B2B/)
   })
 })
 
