@@ -1,78 +1,30 @@
 <template>
-  <!-- Vertical grid (sidebar) -->
-  <nav
-    v-if="vertical"
-    class="grid grid-cols-4 gap-1"
-    aria-label="Shakisha inyuguti"
-  >
-    <router-link
-      v-for="item in letters"
-      :key="item.letter"
-      :to="`/browse/${item.letter}`"
-      class="w-full aspect-square flex items-center justify-center rounded-lg text-sm font-semibold
-             border transition-colors duration-100"
-      :class="active === item.letter
-        ? 'bg-rw-green text-white border-rw-green'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
-      :title="`${item.letter} (${item.count})`"
-      @click="$emit('navigate', item.letter)"
-    >
-      {{ item.letter }}
+  <nav v-if="variant === 'table'" class="ishakiro" aria-label="Ishakiro">
+    <router-link v-for="l in letters" :key="l.letter" :to="`/browse/${l.letter}`">
+      <b>{{ l.letter }}</b><span>{{ l.count }}</span>
     </router-link>
   </nav>
-
-  <!-- Compact horizontal (home bento) -->
-  <nav
-    v-else-if="compact"
-    class="flex flex-wrap gap-1.5"
-    aria-label="Shakisha inyuguti"
-  >
+  <nav v-else :class="variant === 'tabs' ? 'tabs' : 'strip'" aria-label="Inyuguti">
     <router-link
-      v-for="item in letters"
-      :key="item.letter"
-      :to="`/browse/${item.letter}`"
-      class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold
-             border transition-all duration-150 hover:-translate-y-px"
-      :class="active === item.letter
-        ? 'bg-rw-green text-white border-rw-green shadow-sm'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-rw-green/40 hover:shadow-sm'"
-      :title="`${item.letter} — ${item.count} amajambo`"
-    >
-      {{ item.letter }}
-    </router-link>
-  </nav>
-
-  <!-- Default horizontal flex (home original) -->
-  <nav
-    v-else
-    class="flex flex-wrap gap-1 justify-center"
-    aria-label="Shakisha inyuguti"
-  >
-    <router-link
-      v-for="item in letters"
-      :key="item.letter"
-      :to="`/browse/${item.letter}`"
-      class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-semibold
-             border transition-colors duration-100"
-      :class="active === item.letter
-        ? 'bg-rw-green text-white border-rw-green'
-        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300'"
-      :title="`${item.letter} (${item.count})`"
-    >
-      {{ item.letter }}
-    </router-link>
+      v-for="l in letters"
+      :key="l.letter"
+      :to="`/browse/${l.letter}`"
+      :class="{ on: l.letter === active }"
+      :aria-current="l.letter === active ? 'true' : undefined"
+      :title="`${l.letter} — amagambo ${l.count}`"
+    >{{ l.letter }}</router-link>
   </nav>
 </template>
 
 <script>
+// "table" is the home page's Ishakiro; "tabs" is the desktop rail on letter
+// pages and "strip" its phone equivalent (CSS shows one or the other).
 export default {
   name: 'LetterNav',
-  emits: ['navigate'],
   props: {
     letters: { type: Array, default: () => [] },
-    active: { type: String, default: null },
-    vertical: { type: Boolean, default: false },
-    compact: { type: Boolean, default: false },
+    active: { type: String, default: '' },
+    variant: { type: String, default: 'tabs', validator: (v) => ['table', 'tabs', 'strip'].includes(v) },
   },
 }
 </script>

@@ -10,4 +10,7 @@ export default defineConfig({
       '/images': 'http://localhost:8000',
     },
   },
+  test: {
+    environment: 'jsdom',
+  },
 })
