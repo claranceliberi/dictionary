@@ -1,7 +1,7 @@
 :root {
   --blue: #1D6CB5; --blue-ink: #155A99; --sky: #18A0DB; --green: #2F9A46; --yellow: #F5D000;
   --bg: #FFFFFF; --row: #EEF6FC; --line: #CFE1F1; --ink: #1B1B1B; --ink-2: #4B4F55; --muted: #6E747C;
-  --cover: #1D6CB5; --cover-ink: #FFFFFF; --img-bg: #FFFFFF; --hover: #FFF3B0;
+  --cover: #1D6CB5; --cover-ink: #FFFFFF; --img-bg: #FFFFFF; --hover: #FFF3B0; --hover-row: rgba(27, 27, 27, .028);
   --head: "Bodoni Moda", "Bodoni MT", Didot, serif;
   --ui: "Montserrat", system-ui, sans-serif;
   --text: "Palatino Linotype", "Book Antiqua", Palatino, "Noto Serif", Georgia, serif;
@@ -9,7 +9,7 @@
 [data-theme="dark"] {
   --blue: #4FA3E3; --blue-ink: #7FBDEB; --sky: #4CBDEB; --green: #5BC274; --yellow: #F5D000;
   --bg: #0E1B2B; --row: #13263B; --line: #22405F; --ink: #E9EEF4; --ink-2: #C3CCD6; --muted: #8C99A8;
-  --cover: #12385E; --cover-ink: #FFFFFF; --img-bg: #F4F7FA; --hover: #3A3618;
+  --cover: #12385E; --cover-ink: #FFFFFF; --img-bg: #F4F7FA; --hover: #3A3618; --hover-row: rgba(255, 255, 255, .035);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -300,12 +300,10 @@ footer .sep { margin: 0 6px; opacity: .6; }
 mark { background: rgba(245, 208, 0, .38); color: inherit; border-radius: 2px; padding: 0 1px; }
 [data-theme="dark"] mark { background: rgba(245, 208, 0, .28); }
 
-/* ── Entry hover: a quiet tint and a thin rule, not a card ── */
+/* ── Entry hover: a barely-there neutral tint; the blue headword does the pointing ── */
 .list .e { position: relative; isolation: isolate; }
-.list .e::before { content: ""; position: absolute; inset: 8px -18px; z-index: -1; border-radius: 8px; background: var(--row); opacity: 0; transition: opacity .15s ease; }
-.list .e::after { content: ""; position: absolute; left: -18px; top: 20px; bottom: 20px; width: 3px; border-radius: 3px; background: var(--blue); transform: scaleY(0); transition: transform .18s ease-out; }
+.list .e::before { content: ""; position: absolute; inset: 8px -18px; z-index: -1; border-radius: 8px; background: var(--hover-row); opacity: 0; transition: opacity .15s ease; }
 .list .e:hover::before, .list .e:focus-within::before { opacity: 1; }
-.list .e:hover::after, .list .e:focus-within::after { transform: scaleY(1); }
 .list .e:hover .hw { color: var(--blue); }
 .e .hw { transition: color .15s ease; }
 
@@ -372,7 +370,6 @@ html.theming, html.theming *, html.theming *::before, html.theming *::after {
   .act { width: auto; flex: 1 1 auto; justify-content: center; }
   .act.primary { flex-basis: 100%; }
   .list .e::before { inset: 6px -10px; }
-  .list .e::after { left: -10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
