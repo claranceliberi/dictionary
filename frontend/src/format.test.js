@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { stripMarks, splitTerms, splitSynonym, pageWindow } from './format.js'
+import { stripMarks, splitTerms, splitSynonym, pageWindow, categoryLink } from './format.js'
 
 describe('stripMarks', () => {
   it('removes the ** bold markers left over from the PDF', () => {
@@ -48,5 +48,12 @@ describe('pageWindow', () => {
     expect(pageWindow(1, 20)).toEqual([1, 2, '…', 20])
     expect(pageWindow(10, 20)).toEqual([1, '…', 9, 10, 11, '…', 20])
     expect(pageWindow(20, 20)).toEqual([1, '…', 19, 20])
+  })
+})
+
+describe('categoryLink', () => {
+  it('keeps the existing behaviour: search for the last word of the category', () => {
+    expect(categoryLink('Ikoranabuhanga rya mudasobwa')).toEqual({ path: '/search', query: { q: 'mudasobwa' } })
+    expect(categoryLink('Isakazamakuru')).toEqual({ path: '/search', query: { q: 'Isakazamakuru' } })
   })
 })

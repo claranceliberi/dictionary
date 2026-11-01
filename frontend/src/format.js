@@ -35,3 +35,9 @@ export function pageWindow(current, total) {
   })
   return out
 }
+
+// Category links search for the category's last word. That is how the app has
+// always done it; a real category filter needs an API change.
+export function categoryLink(name) {
+  return { path: '/search', query: { q: (name ?? '').trim().split(' ').pop() } }
+}

@@ -179,6 +179,8 @@ h2.ttl { font: 800 15px var(--ui); color: var(--sky); text-transform: uppercase;
 .fields { margin: 32px 0 0; border-top: 3px solid var(--blue); }
 .f { display: grid; grid-template-columns: 170px 1fr; gap: 20px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 17px; line-height: 1.55; color: var(--ink-2); }
 .f b { color: var(--ink); }
+.f .cat { color: var(--blue); }
+.entry-top img { max-width: 100%; }
 .f .lb { font-size: 14px; padding-top: 4px; }
 .f.sh { font-size: 21px; }
 .f small { color: var(--ink-2); font-size: 17px; }
