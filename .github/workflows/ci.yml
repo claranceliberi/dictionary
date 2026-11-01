@@ -22,13 +22,13 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r backend/requirements.txt pytest
+        run: pip install -r backend/requirements.txt pytest httpx
 
       - name: Run parser (generates dictionary.db)
         run: python backend/parser.py
 
       - name: Run tests
-        run: python -m pytest backend/test_parser.py -v --tb=short
+        run: python -m pytest backend/test_parser.py backend/test_main.py -v --tb=short
 
   # ── Frontend: install → build ──────────────────────────────────────────────
   build-frontend:

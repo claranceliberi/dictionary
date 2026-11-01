@@ -1,4 +1,5 @@
 import json
+import os
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -18,7 +19,7 @@ app.add_middleware(
 
 BASE_DIR   = Path(__file__).parent.parent
 IMAGES_DIR = BASE_DIR / "images"
-DIST_DIR   = BASE_DIR / "dist"
+DIST_DIR   = Path(os.environ.get("DIST_DIR", BASE_DIR / "dist"))
 
 app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
 
@@ -174,12 +175,29 @@ def get_stats():
 # ── Vue SPA fallback ──────────────────────────────────────────────────────────
 # Must be defined AFTER all API routes so it only catches unmatched paths.
 # Serves static assets directly; everything else gets index.html for Vue Router.
+#
+# Caching: Vite puts a content hash in every /assets/* filename, so those can be
+# cached for a year. index.html and the unhashed files next to it (favicons)
+# keep the same URL across deploys, so browsers must revalidate them each time
+# (a cheap 304 when nothing changed); otherwise they show the old UI after a deploy.
+NO_CACHE  = {"Cache-Control": "no-cache"}
+IMMUTABLE = "public, max-age=31536000, immutable"
+
+
+class HashedAssets(StaticFiles):
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers["Cache-Control"] = IMMUTABLE
+        return response
+
+
 if DIST_DIR.exists():
-    app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
+    app.mount("/assets", HashedAssets(directory=str(DIST_DIR / "assets")), name="assets")
 
     @app.get("/{full_path:path}", include_in_schema=False)
     def spa_fallback(full_path: str):
         candidate = DIST_DIR / full_path
         if candidate.exists() and candidate.is_file():
-            return FileResponse(candidate)
-        return FileResponse(DIST_DIR / "index.html")
+            return FileResponse(candidate, headers=NO_CACHE)
+        return FileResponse(DIST_DIR / "index.html", headers=NO_CACHE)
