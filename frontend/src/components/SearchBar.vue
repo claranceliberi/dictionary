@@ -43,7 +43,7 @@
           <router-link
             v-for="(item, i) in dropdownItems"
             :key="item.id"
-            :to="`/entry/${item.id}`"
+            :to="`/ijambo/${item.slug}`"
             class="sdrop-row"
             :class="{ on: dropdownIdx === i }"
             @mousedown.prevent
@@ -138,7 +138,7 @@ export default {
         if (item) {
           if (typeof item === 'string') { this.pickRecent(item); return }
           this.onAutocompleteClick(item)
-          this.$router.push(`/entry/${item.id}`)
+          this.$router.push(`/ijambo/${item.slug}`)
           return
         }
       }

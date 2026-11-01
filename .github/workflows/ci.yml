@@ -28,7 +28,7 @@ jobs:
         run: python backend/parser.py
 
       - name: Run tests
-        run: python -m pytest backend/test_parser.py backend/test_main.py -v --tb=short
+        run: python -m pytest backend/test_parser.py backend/test_main.py backend/test_pages.py -v --tb=short
 
   # ── Frontend: install → build ──────────────────────────────────────────────
   build-frontend:

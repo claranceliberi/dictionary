@@ -55,6 +55,13 @@ describe('App shell', () => {
     wrapper.unmount()
   })
 
+  it('gives pages other than a word the site name as their tab title', async () => {
+    document.title = 'Mikoro — Microphone | old'
+    const wrapper = await mountApp()
+    expect(document.title).toBe("Inkoranyamuga y'Ikoranabuhanga")
+    wrapper.unmount()
+  })
+
   it('credits Clarance in the footer with a link to clarance.me', async () => {
     const wrapper = await mountApp()
     const link = wrapper.find('footer a[rel="author"]')

@@ -35,7 +35,7 @@
   <main class="view">
     <router-view v-slot="{ Component, route }">
       <Transition name="page" mode="out-in">
-        <component :is="Component" :key="route.path" :letters="letters" :stats="stats" :categories="categories" />
+        <component :is="Component" :key="viewKey(route)" :letters="letters" :stats="stats" :categories="categories" />
       </Transition>
     </router-view>
   </main>
@@ -56,6 +56,7 @@ import axios from 'axios'
 import Icon from './components/Icon.vue'
 import Ribbon from './components/Ribbon.vue'
 import { loading } from './loading.js'
+import { SITE_TITLE } from './format.js'
 import SearchBar from './components/SearchBar.vue'
 
 const THEME_KEY = 'rw-dark-mode'
@@ -103,6 +104,10 @@ export default {
     window.removeEventListener('keydown', this.onGlobalKey)
   },
   methods: {
+    // A word page keeps its view while its address is tidied (/ijambo/1140 → /ijambo/1140-mikoro).
+    viewKey(route) {
+      return route.path.startsWith('/ijambo/') ? `ijambo-${parseInt(route.params.slug, 10)}` : route.path
+    },
     onSearch(q) {
       if (q.trim()) this.$router.push({ path: '/search', query: { q } })
     },
@@ -133,6 +138,13 @@ export default {
   watch: {
     $route(to) {
       this.query = to.query.q || ''
+    },
+    // word pages set their own title once the entry has loaded
+    '$route.path': {
+      immediate: true,
+      handler(path) {
+        if (!path.startsWith('/ijambo/')) document.title = SITE_TITLE
+      },
     },
   },
 }

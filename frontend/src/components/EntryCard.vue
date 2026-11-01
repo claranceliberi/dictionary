@@ -4,7 +4,7 @@
       <img :src="`/images/${image}`" :alt="entry.term" loading="lazy" />
     </figure>
     <div>
-      <router-link :to="`/entry/${entry.id}`" class="hw"><Hl :text="entry.term" :q="q" /></router-link>
+      <router-link :to="`/ijambo/${entry.slug}`" class="hw"><Hl :text="entry.term" :q="q" /></router-link>
       <span v-if="entry.pronunciation" class="pr">(<Hl :text="entry.pronunciation" :q="q" />)</span>
     </div>
     <p v-if="definition" class="def"><Hl :text="definition" :q="q" /></p>
