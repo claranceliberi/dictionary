@@ -20,7 +20,7 @@ main.view { position: relative; flex: 1; }
 a { color: inherit; text-decoration: none; }
 
 /* zigzag ribbon in the flag colours, as on every page of the book */
-.ribbon-v { position: absolute; left: 24px; top: 0; bottom: 0; width: 34px; pointer-events: none; }
+.ribbon-v { position: absolute; left: 24px; top: 0; bottom: 0; width: 34px; height: 100%; pointer-events: none; }
 .ribbon-h { display: none; width: 100%; height: 22px; }
 .z-blue { stroke: var(--sky); } .z-yellow { stroke: var(--yellow); } .z-green { stroke: var(--green); }
 .z { fill: none; stroke-width: 3.4; stroke-linejoin: miter; }
@@ -130,6 +130,14 @@ h2.ttl { font: 800 15px var(--ui); color: var(--sky); text-transform: uppercase;
 .tabs a.on { background: var(--yellow); color: #14324F; }
 .strip { display: none; }
 .runfoot { margin: 28px 0 0; }
+.results-title { font: 800 20px/1.3 var(--ui); color: var(--sky); text-transform: uppercase; text-align: center; margin: 4px 0 6px; }
+.count + .e { padding-top: 0; }
+.list .e:last-of-type { border-bottom: 0; }
+.state { text-align: center; font: 500 15px var(--ui); color: var(--muted); padding: 32px 0; }
+.state p { margin: 0 0 8px; }
+.state .state-title { font: 900 22px var(--head); color: var(--ink); }
+.state a { color: var(--blue); font-weight: 600; }
+.pager .gap { color: var(--muted); }
 .roundel { width: 54px; height: 54px; border-radius: 50%; background: var(--blue); color: #fff; font: 900 28px var(--head); display: flex; align-items: center; justify-content: center; margin: 4px auto 6px; }
 [data-theme="dark"] .roundel { color: #0E1B2B; }
 .count { text-align: center; font: 600 13px var(--ui); color: var(--muted); margin-bottom: 28px; }
