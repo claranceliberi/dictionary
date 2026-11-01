@@ -195,9 +195,13 @@ class HashedAssets(StaticFiles):
 if DIST_DIR.exists():
     app.mount("/assets", HashedAssets(directory=str(DIST_DIR / "assets")), name="assets")
 
+    DIST_ROOT = DIST_DIR.resolve()
+
     @app.get("/{full_path:path}", include_in_schema=False)
     def spa_fallback(full_path: str):
-        candidate = DIST_DIR / full_path
-        if candidate.exists() and candidate.is_file():
+        # full_path arrives URL-decoded, so "..%2F" becomes "../": resolve it and
+        # only serve files that are really inside the build.
+        candidate = (DIST_ROOT / full_path).resolve()
+        if candidate.is_relative_to(DIST_ROOT) and candidate.is_file():
             return FileResponse(candidate, headers=NO_CACHE)
-        return FileResponse(DIST_DIR / "index.html", headers=NO_CACHE)
+        return FileResponse(DIST_ROOT / "index.html", headers=NO_CACHE)
