@@ -50,13 +50,20 @@
 
         <section class="col-cats">
           <h2 class="ttl">Ibitsibo</h2>
-          <ul class="ibitsibo">
-            <li v-for="cat in categories" :key="cat.name">
-              <router-link :to="categoryLink(cat.name)">
-                <span>{{ cat.name }}</span><span class="dots"></span><span class="n">{{ cat.count }}</span>
-              </router-link>
-            </li>
-          </ul>
+          <div class="ibitsibo" role="table" aria-label="Ibitsibo">
+            <div class="ib-head" role="row">
+              <span role="columnheader">Igitsibo</span><span role="columnheader">Amagambo</span>
+            </div>
+            <router-link
+              v-for="cat in categories"
+              :key="cat.name"
+              :to="categoryLink(cat.name)"
+              class="ib-row"
+              role="row"
+            >
+              <span role="cell">{{ cat.name }}</span><span role="cell" class="n">{{ cat.count }}</span>
+            </router-link>
+          </div>
         </section>
       </div>
     </div>

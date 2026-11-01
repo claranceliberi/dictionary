@@ -112,12 +112,20 @@ h2.ttl { font: 800 15px var(--ui); color: var(--sky); text-transform: uppercase;
 .ishakiro a:hover span::after, .ishakiro a:focus-visible span::after { visibility: visible; }
 .ishakiro a:focus-visible { outline: none; }
 
-.ibitsibo { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 40px; }
-.ibitsibo li { break-inside: avoid; }
-.ibitsibo li a { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; font: 500 15px var(--ui); color: var(--ink); }
-.ibitsibo li a .dots { flex: 1; border-bottom: 2px dotted var(--line); transform: translateY(-4px); }
-.ibitsibo li a .n { color: var(--muted); font-size: 14px; }
-.ibitsibo li a:hover { color: var(--blue); }
+/* Ibitsibo: categories as a two-column table, in the same style as Ishakiro */
+.ibitsibo { border: 1px solid var(--blue); border-radius: 4px; overflow: hidden; }
+.ib-head, .ib-row { display: grid; grid-template-columns: 1fr 120px; }
+.ib-head span { background: var(--blue); color: #fff; font: 800 12px var(--ui); text-transform: uppercase; letter-spacing: .06em; padding: 9px 14px; }
+[data-theme="dark"] .ib-head span { color: #0E1B2B; }
+.ib-row { border-top: 1px solid var(--line); font: 500 15px var(--ui); color: var(--ink); }
+.ib-row span { padding: 9px 14px; }
+.ib-row:nth-child(even) { background: var(--row); }
+.ib-head span:last-child, .ib-row .n { text-align: right; font-variant-numeric: tabular-nums; }
+.ib-row .n { color: var(--ink-2); }
+.ib-row .n::after { content: "→"; margin-left: 10px; color: var(--blue-ink); visibility: hidden; }
+.ib-row:hover, .ib-row:focus-visible { background: var(--hover); color: var(--blue-ink); outline: none; }
+.ib-row:hover .n, .ib-row:focus-visible .n { color: var(--blue-ink); font-weight: 700; }
+.ib-row:hover .n::after, .ib-row:focus-visible .n::after { visibility: visible; }
 
 /* running head, as on every page of the book */
 .runhead { text-align: center; font: italic 600 12px var(--ui); letter-spacing: 0.06em; text-transform: uppercase; color: var(--green); padding: 10px 0; background: linear-gradient(90deg, transparent, var(--row) 30%, var(--row) 70%, transparent); margin: 0 0 8px; }
@@ -250,7 +258,8 @@ footer .sep { margin: 0 6px; opacity: .6; }
   .col-main { display: contents; }
   .col-ish { order: 1; } .col-cats { order: 2; } .howto { order: 3; }
   .howto-grid { grid-template-columns: 1fr; gap: 20px; }
-  .ibitsibo { columns: 1; }
+  .ib-head, .ib-row { grid-template-columns: 1fr 112px; }
+  .ib-head span, .ib-row span { padding-left: 12px; padding-right: 12px; }
   .cover .try { font-size: 13px; }
   .ishakiro a { grid-template-columns: 44px 1fr; }
   .ishakiro a span { padding: 7px 14px; font-size: 15px; }
@@ -340,7 +349,7 @@ mark { background: rgba(245, 208, 0, .38); color: inherit; border-radius: 2px; p
 
 @keyframes pop { from { transform: scale(.4); opacity: 0; } }
 
-.tabs a, .strip a, .ishakiro a b, .ishakiro a span, .pager a, .more, .hlink, .theme, .search button, .act, .sdrop-row, .ibitsibo li a, .crumb a, .back, footer a {
+.tabs a, .strip a, .ishakiro a b, .ishakiro a span, .pager a, .more, .hlink, .theme, .search button, .act, .sdrop-row, .ib-row, .crumb a, .back, footer a {
   transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .08s ease;
 }
 .search button:active, .act:active, .theme:active, .pager a:active, .tabs a:active, .strip a:active { transform: scale(.97); }
