@@ -19,15 +19,21 @@
           <img v-if="entry.images?.length" :src="`/images/${entry.images[0]}`" :alt="entry.term" />
         </div>
 
-        <div v-if="entry.definition" class="lead">
+        <div v-if="definition" class="lead">
           <span class="lb">Inshoza</span>
-          <p>{{ entry.definition }}</p>
+          <p>{{ definition }}</p>
         </div>
 
         <div class="fields">
-          <div v-if="synonym.term" class="f">
+          <div v-if="synonyms.length" class="f">
             <span class="lb">Impuzanyito</span>
-            <span><b>{{ synonym.term }}</b> <small v-if="synonym.pron">({{ synonym.pron }})</small></span>
+            <span>
+              <template v-for="(s, i) in synonyms" :key="i">
+                <template v-if="i">; </template>
+                <b v-if="i === 0">{{ s.term }}</b><template v-else>{{ s.term }}</template>
+                <small v-if="s.pron"> ({{ s.pron }})</small>
+              </template>
+            </span>
           </div>
           <div v-if="english.main" class="f">
             <span class="lb">Icyongereza</span>
@@ -63,7 +69,7 @@
 <script>
 import axios from 'axios'
 import Ribbon from '../components/Ribbon.vue'
-import { splitTerms, splitSynonym, categoryLink } from '../format.js'
+import { splitTerms, splitSynonyms, stripMarks, categoryLink } from '../format.js'
 
 export default {
   name: 'EntryView',
@@ -73,7 +79,8 @@ export default {
   },
   computed: {
     letter() { return (this.entry?.letter || this.entry?.term?.[0] || '').toUpperCase() },
-    synonym() { return splitSynonym(this.entry?.synonym) },
+    synonyms() { return splitSynonyms(this.entry?.synonym) },
+    definition() { return stripMarks(this.entry?.definition) },
     english() { return splitTerms(this.entry?.english) },
     french() { return splitTerms(this.entry?.french) },
   },

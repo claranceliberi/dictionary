@@ -52,6 +52,19 @@ describe('EntryCard', () => {
     })
   })
 
+  it('drops ** markers from the definition', () => {
+    const w = mountCard({ ...menu, definition: 'Cyohereje. **Icyuma ntangafaranga** (icyuma)' })
+    expect(w.find('.def').text()).toBe('Cyohereje. Icyuma ntangafaranga (icyuma)')
+  })
+
+  it('bolds only the first of several synonyms and mutes every pronunciation', () => {
+    const w = mountCard({ ...menu, synonym: 'Imbikamakuru nto (imbikamakuru ntô); disike ngendanwa (disike ngeendânwa)' })
+    const hi = w.findAll('dd')[0]
+    expect(hi.findAll('b').map((b) => b.text())).toEqual(['Imbikamakuru nto'])
+    expect(hi.findAll('.mut').map((s) => s.text())).toEqual(['(imbikamakuru ntô)', '(disike ngeendânwa)'])
+    expect(hi.text()).toContain('disike ngendanwa')
+  })
+
   it('can hide the image for the home page example', () => {
     expect(mountCard(menu, { hideImage: true }).find('img').exists()).toBe(false)
   })

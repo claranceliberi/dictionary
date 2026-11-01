@@ -36,6 +36,11 @@ export function pageWindow(current, total) {
   return out
 }
 
+// Some entries list several synonyms separated by ";", each with its own pronunciation.
+export function splitSynonyms(s) {
+  return stripMarks(s).split(';').map((p) => splitSynonym(p)).filter((p) => p.term || p.pron)
+}
+
 // Category links search for the category's last word. That is how the app has
 // always done it; a real category filter needs an API change.
 export function categoryLink(name) {

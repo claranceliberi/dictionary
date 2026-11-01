@@ -10,7 +10,7 @@ function makeRouter() {
   return createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/', component: { template: '<div />' } },
+      { path: '/', component: { template: '<div class="cover"><input type="search" /></div>' } },
       { path: '/uko-wasoma', component: { template: '<div />' } },
     ],
   })
@@ -45,6 +45,13 @@ describe('App shell', () => {
     await wrapper.find('button.theme').trigger('click')
     expect(localStorage.getItem('rw-dark-mode')).toBe('false')
     expect(document.documentElement.dataset.theme).toBe('light')
+    wrapper.unmount()
+  })
+
+  it('focuses the home search on ⌘K when the header search is hidden', async () => {
+    const wrapper = await mountApp()
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))
+    expect(document.activeElement).toBe(document.querySelector('.cover input[type="search"]'))
     wrapper.unmount()
   })
 

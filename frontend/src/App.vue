@@ -110,9 +110,11 @@ export default {
       const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName) || e.target?.isContentEditable
       const cmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'
       if (!cmdK && !(e.key === '/' && !typing)) return
-      if (!this.$refs.search) return
+      // On the home page the header search is hidden; use the cover search instead.
+      const target = this.$refs.search ?? document.querySelector('.cover input[type="search"]')
+      if (!target) return
       e.preventDefault()
-      this.$refs.search.focus()
+      target.focus()
     },
   },
   watch: {

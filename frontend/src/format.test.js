@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { stripMarks, splitTerms, splitSynonym, pageWindow, categoryLink } from './format.js'
+import { stripMarks, splitTerms, splitSynonym, pageWindow, categoryLink, splitSynonyms } from './format.js'
+import { readFileSync } from 'node:fs'
+
+describe('dark theme fills', () => {
+  it('uses dark text on the current page number and the example page marker', () => {
+    const css = readFileSync('src/style.css', 'utf8')
+    expect(css).toMatch(/\[data-theme="dark"\] \.pager \.cur[^{]*\{[^}]*color: #0E1B2B/)
+    expect(css).toMatch(/\[data-theme="dark"\] \.mp-foot span[^{]*\{[^}]*color: #0E1B2B/)
+  })
+})
 
 describe('stripMarks', () => {
   it('removes the ** bold markers left over from the PDF', () => {
@@ -48,6 +57,16 @@ describe('pageWindow', () => {
     expect(pageWindow(1, 20)).toEqual([1, 2, '…', 20])
     expect(pageWindow(10, 20)).toEqual([1, '…', 9, 10, 11, '…', 20])
     expect(pageWindow(20, 20)).toEqual([1, '…', 19, 20])
+  })
+})
+
+describe('splitSynonyms', () => {
+  it('splits a ;-separated list of synonyms, each with its pronunciation', () => {
+    expect(splitSynonyms('Imbikamakuru nto (imbikamakuru ntô); disike ngendanwa (disike ngeendânwa)')).toEqual([
+      { term: 'Imbikamakuru nto', pron: 'imbikamakuru ntô' },
+      { term: 'disike ngendanwa', pron: 'disike ngeendânwa' },
+    ])
+    expect(splitSynonyms('')).toEqual([])
   })
 })
 
