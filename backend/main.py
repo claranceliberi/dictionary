@@ -28,6 +28,21 @@ PUBLIC_URL = os.environ.get("PUBLIC_URL", "https://dict.clarance.me").rstrip("/"
 app.mount("/images", StaticFiles(directory=str(IMAGES_DIR)), name="images")
 
 
+# Largest id SQLite can store (signed 64-bit). Anything bigger, or anything that
+# isn't plain ASCII digits ("²", "１２"), is simply not a word: 404, not a 500.
+MAX_ID = 2**63 - 1
+RE_ID = re.compile(r"[0-9]{1,19}")
+# Pages beyond this are always empty; the cap keeps OFFSET inside int64.
+MAX_PAGE = 100_000
+
+
+def parse_entry_id(text: str) -> int | None:
+    if not RE_ID.fullmatch(text):
+        return None
+    entry_id = int(text)
+    return entry_id if 1 <= entry_id <= MAX_ID else None
+
+
 def row_to_dict(row) -> dict:
     d = dict(row)
     if d.get("images"):
@@ -69,7 +84,7 @@ def search_entries(
     # The longest real value is 227 characters (a French gloss), so 256 lets any
     # pasted term through while capping the cost of the FTS phrase query.
     q: str = Query(..., min_length=1, max_length=256),
-    page: int = Query(1, ge=1),
+    page: int = Query(1, ge=1, le=MAX_PAGE),
     per_page: int = Query(30, ge=1, le=100),
 ):
     """FTS5 trilingual search."""
@@ -122,7 +137,7 @@ def search_entries(
 @app.get("/api/entries")
 def list_entries(
     letter: str = Query(None, min_length=1, max_length=1),
-    page: int = Query(1, ge=1),
+    page: int = Query(1, ge=1, le=MAX_PAGE),
     per_page: int = Query(50, ge=1, le=200),
 ):
     """Browse entries by letter."""
@@ -157,14 +172,12 @@ def list_entries(
 
 
 @app.get("/api/entries/{entry_id}")
-def get_entry(entry_id: int):
+def get_entry(entry_id: str):
     """Get a single entry by ID."""
-    conn = get_db()
-    row = conn.execute("SELECT * FROM entries WHERE id = ?", (entry_id,)).fetchone()
-    conn.close()
-    if not row:
+    entry = find_entry(entry_id)
+    if not entry:
         raise HTTPException(status_code=404, detail="Entry not found")
-    return row_to_dict(row)
+    return entry
 
 
 @app.get("/api/stats")
@@ -199,7 +212,11 @@ class HashedAssets(StaticFiles):
         return response
 
 
-def find_entry(entry_id: int):
+def find_entry(text: str):
+    """The entry whose id is spelled `text`, or None for unknown or invalid ids."""
+    entry_id = parse_entry_id(text)
+    if entry_id is None:
+        return None
     conn = get_db()
     row = conn.execute("SELECT * FROM entries WHERE id = ?", (entry_id,)).fetchone()
     conn.close()
@@ -231,8 +248,8 @@ if DIST_DIR.exists():
     # old /entry/<id> links, redirect permanently to the readable one.
     @app.get("/ijambo/{word}", include_in_schema=False)
     def word_page(word: str):
-        match = re.match(r"(\d+)(?:-|$)", word)
-        entry = find_entry(int(match.group(1))) if match else None
+        match = re.match(r"([0-9]+)(?:-|$)", word)
+        entry = find_entry(match.group(1)) if match else None
         if not entry:
             return app_shell(404)
         if word != entry["slug"]:
@@ -242,7 +259,7 @@ if DIST_DIR.exists():
 
     @app.get("/entry/{entry_id}", include_in_schema=False)
     def old_entry_link(entry_id: str):
-        entry = find_entry(int(entry_id)) if entry_id.isdigit() else None
+        entry = find_entry(entry_id)
         if not entry:
             return app_shell(404)
         return RedirectResponse(f"/ijambo/{entry['slug']}", status_code=301)

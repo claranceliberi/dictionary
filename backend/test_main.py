@@ -113,3 +113,24 @@ def test_search_accepts_the_longest_real_value(client):
 def test_search_rejects_oversized_queries(client):
     r = client.get("/api/search", params={"q": "ijambo " * 1000})
     assert r.status_code == 422
+
+
+BAD_IDS = ["99999999999999999999", str(2**63), "0", "²", "١٢", "１２", "-1", "1e3"]
+
+
+@pytest.mark.parametrize("entry_id", BAD_IDS)
+def test_invalid_or_oversized_ids_are_not_found(client, entry_id):
+    assert client.get(f"/api/entries/{entry_id}").status_code == 404
+    assert client.get(f"/entry/{entry_id}", follow_redirects=False).status_code == 404
+    assert client.get(f"/ijambo/{entry_id}", follow_redirects=False).status_code == 404
+    assert client.get(f"/ijambo/{entry_id}-nta", follow_redirects=False).status_code == 404
+
+
+def test_largest_int64_id_is_a_plain_404(client):
+    assert client.get(f"/api/entries/{2**63 - 1}").status_code == 404
+
+
+@pytest.mark.parametrize("path", ["/api/entries", "/api/search?q=a"])
+def test_huge_page_numbers_are_rejected(client, path):
+    sep = "&" if "?" in path else "?"
+    assert client.get(f"{path}{sep}page=99999999999999999999").status_code == 422
