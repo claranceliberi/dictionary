@@ -1,8 +1,9 @@
 import json
 import os
 import re
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -26,6 +27,27 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+# The JS bundle and search results compress to about a third of their size.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+# API data and images only change when a new image is built and deployed, so
+# browsers may reuse them for an hour (and serve a stale copy for a day while
+# they refetch) instead of waiting a round trip on every page load.
+DATA_CACHE = "public, max-age=3600, stale-while-revalidate=86400"
+
+
+@app.middleware("http")
+async def cache_data_responses(request: Request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    if (
+        request.method in ("GET", "HEAD")
+        and response.status_code == 200
+        and (path.startswith("/api/") or path.startswith("/images/"))
+        and "cache-control" not in response.headers
+    ):
+        response.headers["Cache-Control"] = DATA_CACHE
+    return response
 
 BASE_DIR   = Path(__file__).parent.parent
 IMAGES_DIR = BASE_DIR / "images"

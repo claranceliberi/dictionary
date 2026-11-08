@@ -93,10 +93,40 @@ def test_robots_points_to_the_sitemap(client):
     assert "Sitemap: https://dict.clarance.me/sitemap.xml" in r.text
 
 
-def test_api_responses_are_left_alone(client):
-    r = client.get("/api/stats")
+DATA_CACHE = "public, max-age=3600, stale-while-revalidate=86400"
+
+
+@pytest.mark.parametrize("path", ["/api/stats", "/api/letters", "/api/categories", "/api/entries/1158", "/api/search?q=mudasobwa"])
+def test_api_data_is_cacheable_for_an_hour(client, path):
+    r = client.get(path)
     assert r.status_code == 200
+    assert r.headers["cache-control"] == DATA_CACHE
+
+
+def test_images_are_cacheable_for_an_hour(client):
+    import main
+    name = next(main.IMAGES_DIR.glob("img-*.jpeg")).name
+    r = client.get(f"/images/{name}")
+    assert r.status_code == 200
+    assert r.headers["cache-control"] == DATA_CACHE
+
+
+def test_api_errors_are_not_cached(client):
+    r = client.get("/api/entries/999999")
+    assert r.status_code == 404
     assert "cache-control" not in r.headers
+
+
+def test_large_responses_are_compressed(client):
+    r = client.get("/api/search", params={"q": "a", "per_page": 50}, headers={"Accept-Encoding": "gzip"})
+    assert r.status_code == 200
+    assert r.headers["content-encoding"] == "gzip"
+    assert "accept-encoding" in r.headers["vary"].lower()
+
+
+def test_small_responses_are_sent_as_is(client):
+    r = client.get("/api/stats", headers={"Accept-Encoding": "gzip"})
+    assert "content-encoding" not in r.headers
 
 
 def test_search_accepts_the_longest_real_value(client):
