@@ -97,3 +97,19 @@ def test_api_responses_are_left_alone(client):
     r = client.get("/api/stats")
     assert r.status_code == 200
     assert "cache-control" not in r.headers
+
+
+def test_search_accepts_the_longest_real_value(client):
+    import database
+    conn = database.get_db()
+    longest = conn.execute(
+        "SELECT MAX(MAX(LENGTH(term)), MAX(LENGTH(english)), MAX(LENGTH(french))) FROM entries"
+    ).fetchone()[0]
+    conn.close()
+    assert longest <= 256
+    assert client.get("/api/search", params={"q": "a" * 256}).status_code == 200
+
+
+def test_search_rejects_oversized_queries(client):
+    r = client.get("/api/search", params={"q": "ijambo " * 1000})
+    assert r.status_code == 422

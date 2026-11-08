@@ -66,7 +66,9 @@ def get_categories():
 
 @app.get("/api/search")
 def search_entries(
-    q: str = Query(..., min_length=1),
+    # The longest real value is 227 characters (a French gloss), so 256 lets any
+    # pasted term through while capping the cost of the FTS phrase query.
+    q: str = Query(..., min_length=1, max_length=256),
     page: int = Query(1, ge=1),
     per_page: int = Query(30, ge=1, le=100),
 ):
