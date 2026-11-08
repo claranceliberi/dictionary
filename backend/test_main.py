@@ -151,3 +151,32 @@ def test_api_docs_can_be_turned_on_for_development(tmp_path, monkeypatch):
     c = TestClient(main.app)
     assert c.get("/openapi.json").status_code == 200
     assert c.get("/docs").status_code == 200
+
+
+def test_database_is_opened_read_only():
+    import sqlite3
+    import database
+    conn = database.get_db()
+    assert conn.execute("PRAGMA journal_mode").fetchone()[0] != "wal"
+    with pytest.raises(sqlite3.OperationalError):
+        conn.execute("DELETE FROM entries")
+    conn.close()
+
+
+def test_database_works_from_a_read_only_directory(tmp_path, monkeypatch):
+    import os
+    import shutil
+    import database
+    ro_dir = tmp_path / "ro"
+    ro_dir.mkdir()
+    shutil.copy(database.DB_PATH, ro_dir / "dictionary.db")
+    os.chmod(ro_dir / "dictionary.db", 0o444)
+    os.chmod(ro_dir, 0o555)
+    try:
+        monkeypatch.setattr(database, "DB_PATH", ro_dir / "dictionary.db")
+        conn = database.get_db()
+        assert conn.execute("SELECT COUNT(*) FROM entries").fetchone()[0] > 0
+        conn.close()
+        assert sorted(p.name for p in ro_dir.iterdir()) == ["dictionary.db"]
+    finally:
+        os.chmod(ro_dir, 0o755)
