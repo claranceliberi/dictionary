@@ -134,3 +134,20 @@ def test_largest_int64_id_is_a_plain_404(client):
 def test_huge_page_numbers_are_rejected(client, path):
     sep = "&" if "?" in path else "?"
     assert client.get(f"{path}{sep}page=99999999999999999999").status_code == 422
+
+
+@pytest.mark.parametrize("path", ["/docs", "/redoc", "/openapi.json"])
+def test_api_docs_are_off_by_default(client, path):
+    r = client.get(path)
+    assert "swagger-ui" not in r.text and "redoc" not in r.text
+    assert not r.headers["content-type"].startswith("application/json")
+
+
+def test_api_docs_can_be_turned_on_for_development(tmp_path, monkeypatch):
+    monkeypatch.setenv("ENABLE_API_DOCS", "1")
+    monkeypatch.setenv("DIST_DIR", str(tmp_path / "no-dist"))
+    sys.modules.pop("main", None)
+    import main
+    c = TestClient(main.app)
+    assert c.get("/openapi.json").status_code == 200
+    assert c.get("/docs").status_code == 200

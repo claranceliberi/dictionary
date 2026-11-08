@@ -10,7 +10,15 @@ from pathlib import Path
 from database import get_db
 from pages import entry_path, render_entry_page, sitemap_xml
 
-app = FastAPI(title="Inkoranyamuga y'Ikoranabuhanga")
+# The interactive API docs load swagger-ui/redoc from a CDN by floating tag, so
+# they are off unless ENABLE_API_DOCS=1 (for local development only).
+API_DOCS = os.environ.get("ENABLE_API_DOCS") == "1"
+app = FastAPI(
+    title="Inkoranyamuga y'Ikoranabuhanga",
+    docs_url="/docs" if API_DOCS else None,
+    redoc_url="/redoc" if API_DOCS else None,
+    openapi_url="/openapi.json" if API_DOCS else None,
+)
 
 app.add_middleware(
     CORSMiddleware,
