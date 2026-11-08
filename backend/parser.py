@@ -54,37 +54,10 @@ RE_ENTRY_PLAIN = re.compile(
 # Field markers — lines starting with these are continuations, not new entries
 RE_FIELD_START = re.compile(r"^(HI|Eng|EnIg|Engl|Fr|Fra|NK|SH|ENG)\s*:")
 
-# Field splitter — also handle lowercase variants like "fr:"
-RE_FIELDS = re.compile(
-    r"\b(HI|Eng|EnIg|Engl|ENG|Fr|fra|Fra|fr|NK|Nk|SH)\s*:?\s*(?=\s)"
-    r"|\b(HI|Eng|EnIg|Engl|ENG|Fr|fra|Fra|fr|NK|Nk|SH)\s*:\s*"
-)
-# Simpler: split on known field markers with colon
+# Field splitter: split on known field markers with colon
 RE_FIELDS = re.compile(
     r"\b(HI|Eng|EnIg|Engl|ENG|Fr|Fra|fra|fr|NK|Nk|SH)\s*:\s*"
 )
-
-# Known NK categories for fuzzy matching when prefix is missing
-KNOWN_CATEGORIES = [
-    "Ikoranabuhanga rya mudasobwa",
-    "Ikoranabuhanga rya murandasi",
-    "Itumanaho koranabuhanga",
-    "Isakazamakuru",
-    "Ubwenge buhangano",
-    "Urusobe ntangamakuru",
-    "Ikoranabuhanga ngaragazabimenyetso",
-    "Ikoranabuhanga ndangamuntu",
-    "Ikoranabuhanga ry'imari",
-    "Itangazabumenyi koranabuhanga",
-    "Ikorabuhanga rya mudasobwa",   # OCR variant
-    "Ibikoresho by'itangazamakuru",
-    "Ikoranabuhanga ry'imiraba",
-    "Ikoranabuhanga ry'amashusho",
-    "Isakazabumenyi koranabuhanga",
-    "Ikoranabuhanga ry'amajwi",
-    "Ikoranabuhanga ry'itumanaho",
-    "Ibikoresho bya mudasobwa",
-]
 
 FIELD_ALIASES = {
     "EnIg": "Eng",
