@@ -1,7 +1,7 @@
 """
 Test suite for Inkoranyamuga y'Ikoranabuhanga dictionary parser.
 
-Run: cd /app/dictionary/backend && python -m pytest test_parser.py -v
+Run: cd backend && python -m pytest test_parser.py -v
 
 Functions under test (all from parser.py):
   - normalize_field_key(key: str) -> str
@@ -34,6 +34,10 @@ from parser import (
     merge_english_continuations,
     init_db,
     seed_db,
+    entry_keys,
+    assign_ids,
+    load_id_map,
+    write_id_map,
     CATEGORY_TYPO_MAP,
     FIELD_ALIASES,
 )
@@ -746,6 +750,71 @@ class TestDatabase:
 
 
 # ============================================================================
+# Stable word ids: entry_keys + assign_ids + ids.tsv
+# ============================================================================
+
+def _e(term):
+    return {"term": term}
+
+
+class TestStableIds:
+    def test_keys_are_slugs_with_a_counter_for_repeats(self):
+        assert entry_keys([_e("Ububiko"), _e("Mudasobwa"), _e("Ububiko"), _e("ububiko")]) == [
+            "ububiko", "mudasobwa", "ububiko~2", "ububiko~3",
+        ]
+
+    def test_known_entries_keep_their_ids_whatever_the_order(self):
+        id_map = {"imeri": 7, "mudasobwa": 3}
+        entries = [_e("Mudasobwa"), _e("Imeri")]
+        assert assign_ids(entries, id_map) == []
+        assert [e["id"] for e in entries] == [3, 7]
+
+    def test_an_inserted_entry_does_not_renumber_the_rest(self):
+        id_map = {"a": 1, "b": 2, "c": 3}
+        entries = [_e("A"), _e("New"), _e("B"), _e("C")]
+        assert assign_ids(entries, id_map) == ["new"]
+        assert [e["id"] for e in entries] == [1, 4, 2, 3]
+
+    def test_ids_of_removed_entries_are_never_reused(self):
+        id_map = {"a": 1, "gone": 9}
+        entries = [_e("A"), _e("Fresh")]
+        assign_ids(entries, id_map)
+        assert entries[1]["id"] == 10
+
+    def test_id_map_round_trips(self, tmp_path):
+        path = tmp_path / "ids.tsv"
+        write_id_map(path, {"b": 2, "a": 1, "c~2": 5})
+        assert load_id_map(path) == {"a": 1, "b": 2, "c~2": 5}
+        assert path.read_text().splitlines()[1:] == ["1\ta", "2\tb", "5\tc~2"]
+
+    def test_duplicate_ids_in_the_map_are_rejected(self, tmp_path):
+        path = tmp_path / "ids.tsv"
+        path.write_text("1\ta\n1\tb\n")
+        with pytest.raises(ValueError):
+            load_id_map(path)
+
+    def test_seed_uses_the_assigned_ids(self):
+        conn = sqlite3.connect(":memory:")
+        init_db(conn)
+        entry = {
+            "id": 42, "term": "T", "pronunciation": "t", "synonym": "", "english": "E",
+            "french": "F", "category": "C", "definition": "D", "images": "[]", "letter": "T",
+        }
+        seed_db(conn, [entry])
+        assert conn.execute("SELECT id FROM entries").fetchone()[0] == 42
+        assert conn.execute("SELECT rowid FROM entries_fts WHERE entries_fts MATCH 'E'").fetchone()[0] == 42
+        conn.close()
+
+
+class TestParserFailsOnBadContent:
+    def test_main_exits_non_zero_when_the_entry_count_is_off(self, tmp_path, monkeypatch):
+        import parser
+        monkeypatch.setattr(parser, "DB_PATH", tmp_path / "dictionary.db")
+        monkeypatch.setattr(parser, "MAX_ENTRIES", 10)
+        assert parser.main([]) == 1
+
+
+# ============================================================================
 # Integration: full pipeline on real data
 # ============================================================================
 
@@ -765,6 +834,22 @@ class TestIntegrationRealData:
         self.conn.row_factory = sqlite3.Row
         yield
         self.conn.close()
+
+    def test_every_word_has_a_committed_id(self):
+        """Each word's id must match content/ids.tsv, so published URLs never move.
+        If this fails after a content or parser change, run
+        `python parser.py --update-ids` and commit content/ids.tsv."""
+        from parser import IDS_FILE
+        id_map = load_id_map(IDS_FILE)
+        rows = self.conn.execute("SELECT id, term FROM entries ORDER BY id").fetchall()
+        keys = entry_keys([dict(r) for r in rows])
+        missing = [(r["id"], k) for r, k in zip(rows, keys) if id_map.get(k) != r["id"]]
+        assert not missing, f"ids not recorded in content/ids.tsv: {missing[:10]}"
+
+    @pytest.mark.parametrize("entry_id,term", [(1, "Abafatanyabikorwa bifashisha urubuga"), (1140, "Mikoro"), (1158, "Mubitsi"), (1601, "Zetabayiti")])
+    def test_published_ids_still_point_at_the_same_words(self, entry_id, term):
+        row = self.conn.execute("SELECT term FROM entries WHERE id = ?", (entry_id,)).fetchone()
+        assert row is not None and row["term"] == term
 
     def test_total_entries_in_range(self):
         """Should have ~1600 entries (between 1550 and 1650)."""
