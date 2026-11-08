@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "minimumReleaseAge": "14 days",
+  "internalChecksFilter": "strict",
+  "pip_requirements": {
+    "enabled": false
+  },
+  "pip-compile": {
+    "managerFilePatterns": [
+      "/(^|/)requirements(-dev)?\\.txt$/"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Keep Python on the 3.12 line the backend lock is compiled for; bump deliberately",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["python"],
+      "allowedVersions": "/^3\\.12\\./"
+    },
+    {
+      "description": "Stay on the Node 22 LTS line until a deliberate move",
+      "matchDatasources": ["docker", "node-version"],
+      "matchPackageNames": ["node"],
+      "allowedVersions": "/^22\\./"
+    }
+  ]
+}

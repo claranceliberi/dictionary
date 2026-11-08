@@ -1,5 +1,5 @@
 # Stage 1: Build Vue frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app
 COPY frontend/package*.json .
 RUN npm ci --silent
@@ -11,7 +11,7 @@ RUN npm run build
 FROM python:3.12-slim AS parser
 WORKDIR /app/backend
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 COPY backend/ .
 COPY content/ ../content/
 RUN python parser.py
@@ -21,7 +21,7 @@ RUN python parser.py
 FROM python:3.12-slim AS runtime
 WORKDIR /app/backend
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 
 COPY backend/main.py backend/database.py backend/pages.py ./
 
