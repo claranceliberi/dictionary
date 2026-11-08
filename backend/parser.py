@@ -18,7 +18,7 @@ from pages import slugify
 # Paths
 BASE_DIR = Path(__file__).parent.parent
 CONTENT_DIR = BASE_DIR / "content" / "Inkoranyamuga Ikoranabuhanga.pdf"
-MARKDOWN_FILE = CONTENT_DIR / "markdown.md"
+# The only text source: one OCR'd markdown.md per book page, read in page order.
 PAGES_DIR = CONTENT_DIR / "pages"
 IMAGES_DIR = BASE_DIR / "images"
 DB_PATH = Path(__file__).parent / "dictionary.db"
@@ -321,13 +321,26 @@ def extract_images(line: str) -> list[str]:
     return [m.group(2) for m in RE_IMAGE.finditer(line)]
 
 
+def read_pages(pages_dir: Path) -> str:
+    """The book text: pages/page-N/markdown.md for N = 1, 2, ... joined by blank lines."""
+    pages = sorted(pages_dir.glob("page-*/markdown.md"), key=lambda p: int(p.parent.name.split("-")[1]))
+    if not pages:
+        raise FileNotFoundError(f"no page-*/markdown.md under {pages_dir}")
+    return "\n\n".join(p.read_text(encoding="utf-8") for p in pages)
+
+
 def load_and_reassemble(md_path: Path) -> list[tuple[str, list[str]]]:
+    """Pass 1 on a single markdown file (used by the tests)."""
+    with open(md_path, encoding="utf-8") as f:
+        return reassemble(f.read())
+
+
+def reassemble(text: str) -> list[tuple[str, list[str]]]:
     """
-    Pass 1: Read markdown, reassemble entry texts.
+    Pass 1: Reassemble entry texts from the book's markdown.
     Returns list of (entry_raw_text, [image_filenames]).
     """
-    with open(md_path, encoding="utf-8") as f:
-        lines = f.readlines()
+    lines = text.splitlines(keepends=True)
 
     # Skip front matter — find first real entry
     start_idx = 0
@@ -539,7 +552,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Step 2: Parse markdown
     print("\n2. Parsing markdown...")
-    raw_entries = load_and_reassemble(MARKDOWN_FILE)
+    raw_entries = reassemble(read_pages(PAGES_DIR))
     print(f"  Found {len(raw_entries)} raw entry blocks")
 
     # Step 3: Parse fields

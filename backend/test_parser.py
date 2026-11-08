@@ -31,6 +31,7 @@ from parser import (
     is_noise,
     extract_images,
     load_and_reassemble,
+    read_pages,
     merge_english_continuations,
     init_db,
     seed_db,
@@ -622,6 +623,18 @@ class TestLoadAndReassemble:
 # ============================================================================
 # merge_english_continuations
 # ============================================================================
+
+class TestReadPages:
+    def test_pages_are_joined_in_numeric_order(self, tmp_path):
+        for n, text in [(10, "ten"), (2, "two"), (1, "one")]:
+            (tmp_path / f"page-{n}").mkdir()
+            (tmp_path / f"page-{n}" / "markdown.md").write_text(text)
+        assert read_pages(tmp_path) == "one\n\ntwo\n\nten"
+
+    def test_missing_pages_fail_loudly(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            read_pages(tmp_path)
+
 
 class TestMergeEnglishContinuations:
     """Tests for merge_english_continuations(entries) -> list[dict]"""
