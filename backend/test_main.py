@@ -210,3 +210,11 @@ def test_database_works_from_a_read_only_directory(tmp_path, monkeypatch):
         assert sorted(p.name for p in ro_dir.iterdir()) == ["dictionary.db"]
     finally:
         os.chmod(ro_dir, 0o755)
+
+
+@pytest.mark.parametrize("path", ["/", "/ijambo/1158-mubitsi", "/api/stats", "/assets/index-abc123.js", "/api/entries/999999"])
+def test_security_headers_are_set_on_every_response(client, path):
+    r = client.get(path)
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["referrer-policy"] == "strict-origin-when-cross-origin"
+    assert r.headers["x-frame-options"] == "DENY"

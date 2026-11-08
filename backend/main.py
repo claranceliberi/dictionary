@@ -36,6 +36,23 @@ app.add_middleware(GZipMiddleware, minimum_size=1024)
 DATA_CACHE = "public, max-age=3600, stale-while-revalidate=86400"
 
 
+# Headers that only depend on what this app serves. HSTS belongs to the TLS
+# edge (the HTTPRoute in k8s-homelab), not here.
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Frame-Options": "DENY",
+}
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+    for name, value in SECURITY_HEADERS.items():
+        response.headers.setdefault(name, value)
+    return response
+
+
 @app.middleware("http")
 async def cache_data_responses(request: Request, call_next):
     response = await call_next(request)
