@@ -10,14 +10,16 @@ COPY frontend/ .
 RUN npm run build
 
 
-# Stage 2: Parse markdown and seed the database
+# Stage 2: Parse markdown and seed the database, then check the result.
+# parser.py exits non-zero on a bad entry count, and the real-data tests
+# (including the committed word ids) must pass, or the image is not built.
 FROM python:3.12.15-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704 AS parser
 WORKDIR /app/backend
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir --require-hashes -r requirements.txt
+COPY backend/requirements.txt backend/requirements-dev.txt ./
+RUN pip install --no-cache-dir --require-hashes -r requirements.txt -r requirements-dev.txt
 COPY backend/ .
 COPY content/ ../content/
-RUN python parser.py
+RUN python parser.py && python -m pytest test_parser.py -q -p no:cacheprovider
 
 
 # Stage 3: Runtime — FastAPI serves API + images + Vue SPA
