@@ -9,9 +9,6 @@ backend/dictionary.db
 frontend/node_modules/
 frontend/dist/
 
-# Content zip (only the extracted dir is needed)
-content/*.zip
-
 # Git / editor
 .git/
 .gitignore

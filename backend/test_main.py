@@ -93,7 +93,128 @@ def test_robots_points_to_the_sitemap(client):
     assert "Sitemap: https://dict.clarance.me/sitemap.xml" in r.text
 
 
-def test_api_responses_are_left_alone(client):
-    r = client.get("/api/stats")
+DATA_CACHE = "public, max-age=3600, stale-while-revalidate=86400"
+
+
+@pytest.mark.parametrize("path", ["/api/stats", "/api/letters", "/api/categories", "/api/entries/1158", "/api/search?q=mudasobwa"])
+def test_api_data_is_cacheable_for_an_hour(client, path):
+    r = client.get(path)
     assert r.status_code == 200
+    assert r.headers["cache-control"] == DATA_CACHE
+
+
+def test_images_are_cacheable_for_an_hour(client):
+    import main
+    name = next(main.IMAGES_DIR.glob("img-*.jpeg")).name
+    r = client.get(f"/images/{name}")
+    assert r.status_code == 200
+    assert r.headers["cache-control"] == DATA_CACHE
+
+
+def test_api_errors_are_not_cached(client):
+    r = client.get("/api/entries/999999")
+    assert r.status_code == 404
     assert "cache-control" not in r.headers
+
+
+def test_large_responses_are_compressed(client):
+    r = client.get("/api/search", params={"q": "a", "per_page": 50}, headers={"Accept-Encoding": "gzip"})
+    assert r.status_code == 200
+    assert r.headers["content-encoding"] == "gzip"
+    assert "accept-encoding" in r.headers["vary"].lower()
+
+
+def test_small_responses_are_sent_as_is(client):
+    r = client.get("/api/stats", headers={"Accept-Encoding": "gzip"})
+    assert "content-encoding" not in r.headers
+
+
+def test_search_accepts_the_longest_real_value(client):
+    import database
+    conn = database.get_db()
+    longest = conn.execute(
+        "SELECT MAX(MAX(LENGTH(term)), MAX(LENGTH(english)), MAX(LENGTH(french))) FROM entries"
+    ).fetchone()[0]
+    conn.close()
+    assert longest <= 256
+    assert client.get("/api/search", params={"q": "a" * 256}).status_code == 200
+
+
+def test_search_rejects_oversized_queries(client):
+    r = client.get("/api/search", params={"q": "ijambo " * 1000})
+    assert r.status_code == 422
+
+
+BAD_IDS = ["99999999999999999999", str(2**63), "0", "²", "١٢", "１２", "-1", "1e3"]
+
+
+@pytest.mark.parametrize("entry_id", BAD_IDS)
+def test_invalid_or_oversized_ids_are_not_found(client, entry_id):
+    assert client.get(f"/api/entries/{entry_id}").status_code == 404
+    assert client.get(f"/entry/{entry_id}", follow_redirects=False).status_code == 404
+    assert client.get(f"/ijambo/{entry_id}", follow_redirects=False).status_code == 404
+    assert client.get(f"/ijambo/{entry_id}-nta", follow_redirects=False).status_code == 404
+
+
+def test_largest_int64_id_is_a_plain_404(client):
+    assert client.get(f"/api/entries/{2**63 - 1}").status_code == 404
+
+
+@pytest.mark.parametrize("path", ["/api/entries", "/api/search?q=a"])
+def test_huge_page_numbers_are_rejected(client, path):
+    sep = "&" if "?" in path else "?"
+    assert client.get(f"{path}{sep}page=99999999999999999999").status_code == 422
+
+
+@pytest.mark.parametrize("path", ["/docs", "/redoc", "/openapi.json"])
+def test_api_docs_are_off_by_default(client, path):
+    r = client.get(path)
+    assert "swagger-ui" not in r.text and "redoc" not in r.text
+    assert not r.headers["content-type"].startswith("application/json")
+
+
+def test_api_docs_can_be_turned_on_for_development(tmp_path, monkeypatch):
+    monkeypatch.setenv("ENABLE_API_DOCS", "1")
+    monkeypatch.setenv("DIST_DIR", str(tmp_path / "no-dist"))
+    sys.modules.pop("main", None)
+    import main
+    c = TestClient(main.app)
+    assert c.get("/openapi.json").status_code == 200
+    assert c.get("/docs").status_code == 200
+
+
+def test_database_is_opened_read_only():
+    import sqlite3
+    import database
+    conn = database.get_db()
+    assert conn.execute("PRAGMA journal_mode").fetchone()[0] != "wal"
+    with pytest.raises(sqlite3.OperationalError):
+        conn.execute("DELETE FROM entries")
+    conn.close()
+
+
+def test_database_works_from_a_read_only_directory(tmp_path, monkeypatch):
+    import os
+    import shutil
+    import database
+    ro_dir = tmp_path / "ro"
+    ro_dir.mkdir()
+    shutil.copy(database.DB_PATH, ro_dir / "dictionary.db")
+    os.chmod(ro_dir / "dictionary.db", 0o444)
+    os.chmod(ro_dir, 0o555)
+    try:
+        monkeypatch.setattr(database, "DB_PATH", ro_dir / "dictionary.db")
+        conn = database.get_db()
+        assert conn.execute("SELECT COUNT(*) FROM entries").fetchone()[0] > 0
+        conn.close()
+        assert sorted(p.name for p in ro_dir.iterdir()) == ["dictionary.db"]
+    finally:
+        os.chmod(ro_dir, 0o755)
+
+
+@pytest.mark.parametrize("path", ["/", "/ijambo/1158-mubitsi", "/api/stats", "/assets/index-abc123.js", "/api/entries/999999"])
+def test_security_headers_are_set_on_every_response(client, path):
+    r = client.get(path)
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["referrer-policy"] == "strict-origin-when-cross-origin"
+    assert r.headers["x-frame-options"] == "DENY"
