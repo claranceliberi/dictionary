@@ -13,7 +13,7 @@ RUN npm run build
 # Stage 2: Parse markdown and seed the database, then check the result.
 # parser.py exits non-zero on a bad entry count, and the real-data tests
 # (including the committed word ids) must pass, or the image is not built.
-FROM python:3.12.15-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704 AS parser
+FROM python:3.12.16-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b AS parser
 WORKDIR /app/backend
 COPY backend/requirements.txt backend/requirements-dev.txt ./
 RUN pip install --no-cache-dir --require-hashes -r requirements.txt -r requirements-dev.txt
@@ -23,8 +23,12 @@ RUN python parser.py && python -m pytest test_parser.py -q -p no:cacheprovider
 
 
 # Stage 3: Runtime — FastAPI serves API + images + Vue SPA
-FROM python:3.12.15-slim@sha256:a0f57064cbdcd6285fa45f51237ab0b35ea8ebaed06a1f5973e89e19dfb86704 AS runtime
+FROM python:3.12.16-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b AS runtime
 WORKDIR /app/backend
+# zlib1g: a Debian security fix the base image doesn't have yet (CVE-2026-85091).
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends --only-upgrade zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1 \
+ && rm -rf /var/lib/apt/lists/*
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 
